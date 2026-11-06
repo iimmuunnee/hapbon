@@ -2,6 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
+<!-- 보안 정책: 이 페이지는 어떤 서버와도 통신할 수 없고, 외부 파일을 하나도 불러오지 않아요 -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' blob:; worker-src blob:; style-src 'unsafe-inline'; img-src data: blob:; font-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; child-src blob:; form-action 'none'; base-uri 'none'; manifest-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F2F4F6">
 <meta name="color-scheme" content="light dark">
@@ -356,7 +358,6 @@
 <script id="cmaps" type="application/json">__CMAPS__</script>
 <script>
 (function(){
-  if (location.hostname === '127.0.0.1') setInterval(() => fetch('/ping').catch(()=>{}), 2000);
   // 한국어 PDF용 문자 변환표(CMap)를 파일 안에서 바로 읽기
   const CMAPS = JSON.parse(document.getElementById('cmaps').textContent);
   class LocalCMapFactory {
