@@ -58,7 +58,9 @@
   .group.enter{animation:enter .35s var(--ease) both}
   .g-head{display:flex;align-items:center;gap:8px;height:28px;margin:0 2px 10px;font-size:13px;color:var(--sub)}
   .g-head .dot{width:8px;height:8px;border-radius:50%;flex:none}
-  .g-head .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;font-weight:600;color:var(--ink)}
+  .g-head .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;font-weight:600;color:var(--ink);font-size:14px}
+  .g-head .fn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;color:var(--muted);flex:0 1 auto;min-width:0}
+  .g-head .fn:empty{display:none}
   .g-head .ct{color:var(--muted);flex:none}
   .g-head .sp{flex:1}
   .g-btn{height:28px;padding:0 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--sub);background:var(--fill);flex:none;opacity:0;transition:opacity .15s var(--ease),background .15s var(--ease)}
@@ -156,7 +158,8 @@
     .g-body{gap:10px}
     .page{width:calc(50% - 5px)}
     .cut{left:-5px;margin-left:-12px}
-    .g-head .nm{max-width:40vw}
+    .g-head .nm{max-width:none;flex:0 1 auto;min-width:0}
+    .g-head .fn{display:none}
     .bar .in{flex-wrap:wrap;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
     .sum{order:0;flex:1}
     .warn{order:1;width:100%}
@@ -247,9 +250,23 @@
 <script>__PDFJS__</script>
 <script>__SORTABLE__</script>
 <script id="worker-src" type="text/plain">__WORKER__</script>
+<script id="cmaps" type="application/json">__CMAPS__</script>
 <script>
 (function(){
   if (location.hostname === '127.0.0.1') setInterval(() => fetch('/ping').catch(()=>{}), 2000);
+  // 한국어 PDF용 문자 변환표(CMap)를 파일 안에서 바로 읽기
+  const CMAPS = JSON.parse(document.getElementById('cmaps').textContent);
+  class LocalCMapFactory {
+    constructor(){}
+    async fetch({name}){
+      const b64 = CMAPS[name];
+      if (!b64) throw new Error('CMap not bundled: ' + name);
+      const bin = atob(b64), u = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+      return {cMapData: u, compressionType: 1};
+    }
+  }
+  const DOC_OPTS = {CMapReaderFactory: LocalCMapFactory, cMapUrl: 'local/', cMapPacked: true, useWorkerFetch: false, isEvalSupported: false};
   pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([document.getElementById('worker-src').textContent], {type:'text/javascript'}));
 
   const $ = id => document.getElementById(id);
@@ -275,7 +292,7 @@
 
   /* ---------- loading files ---------- */
   async function openPdf(f, password){
-    const doc = await pdfjsLib.getDocument({data: f.bytes.slice(), password: password || undefined}).promise;
+    const doc = await pdfjsLib.getDocument({data: f.bytes.slice(), password: password || undefined, ...DOC_OPTS}).promise;
     f.doc = doc; f.numPages = doc.numPages; f.state = 'ready';
     try { await PDFLib.PDFDocument.load(f.bytes); f.raster = false; } catch(e){ f.raster = true; }
     const added = [];
@@ -359,6 +376,70 @@
 
   /* ---------- thumbnails ---------- */
   const thumbQueue = []; let thumbRunning = false;
+  /* ---------- 제목 인식: 첫 페이지 위쪽에서 가장 큰 글씨 줄 ---------- */
+  async function detectTitle(p){
+    const f = files.get(p.fid);
+    if (!f || f.kind !== 'pdf' || !f.doc) return null;
+    const pg = await f.doc.getPage(p.index + 1);
+    const vp = pg.getViewport({scale:1});
+    const tc = await pg.getTextContent();
+    const items = [];
+    for (const it of tc.items){
+      if (!it.str || !it.str.trim()) continue;
+      const [x, y] = vp.convertToViewportPoint(it.transform[4], it.transform[5]);
+      const size = Math.hypot(it.transform[2], it.transform[3]) || it.height;
+      if (size < 4) continue;
+      items.push({str: it.str, x, y, w: it.width, size});
+    }
+    if (!items.length) return null;
+    // 같은 줄끼리 묶기 (y가 가깝고 글자 크기가 비슷하면 한 줄)
+    items.sort((a,b) => a.y - b.y || a.x - b.x);
+    const lines = [];
+    for (const it of items){
+      const L = lines.find(l => Math.abs(l.y - it.y) < Math.max(2, it.size * .35) && Math.abs(l.size - it.size) < it.size * .2);
+      if (L) L.items.push(it); else lines.push({y: it.y, size: it.size, items: [it]});
+    }
+    for (const l of lines){
+      l.items.sort((a,b) => a.x - b.x);
+      let t = '', end = null;
+      for (const it of l.items){
+        if (end !== null && it.x - end > l.size * .25 && !t.endsWith(' ')) t += ' ';
+        t += it.str; end = it.x + it.w;
+      }
+      l.text = t.replace(/\s+/g, ' ').trim();
+      l.size = Math.max(...l.items.map(i => i.size));
+    }
+    const sizes = items.map(i => i.size).sort((a,b) => a-b), median = sizes[Math.floor(sizes.length/2)];
+    const cand = lines.filter(l => l.y < vp.height * .45 && l.text.replace(/[^\p{L}\p{N}]/gu, '').length >= 2);
+    if (!cand.length) return null;
+    cand.sort((a,b) => (b.size - a.size) || (a.y - b.y));
+    const best = cand[0];
+    if (best.size < median * 1.15) return null;      // 본문과 크기가 같으면 제목이 아니라고 봄
+    let t = best.text.replace(/^[\[<(〈【]\s*(별지|별첨|붙임|서식)[^\]>)〉】]*[\]>)〉】]\s*/, '');
+    const toks = t.split(' ');
+    if (toks.length >= 3 && toks.every(x => [...x].length === 1)) t = toks.join('');   // "재 학 증 명 서" → "재학증명서"
+    if (t.length > 60) t = t.slice(0, 60) + '…';
+    return t || null;
+  }
+  const titleQueue = []; let titleRunning = false;
+  function queueTitle(p){ if (p.title === undefined && !p.tq){ p.tq = true; titleQueue.push(p); runTitles(); } }
+  async function runTitles(){
+    if (titleRunning) return; titleRunning = true;
+    while (titleQueue.length){
+      const p = titleQueue.shift();
+      try { p.title = await detectTitle(p); } catch(e){ p.title = null; }
+      document.querySelectorAll(`.group[data-first="${p.pid}"]`).forEach(setHead);
+    }
+    titleRunning = false;
+  }
+  function setHead(box){
+    const p = pages.find(x => x.pid === +box.dataset.first);
+    const nm = box.querySelector('.g-head .nm'), fn = box.querySelector('.g-head .fn');
+    if (p && p.title){ nm.textContent = p.title; nm.title = p.title; fn.textContent = box.dataset.fallback; }
+    else { nm.textContent = box.dataset.fallback; nm.title = box.dataset.fallback; fn.textContent = ''; }
+    if (p && p.title === undefined) queueTitle(p);
+  }
+
   function queueThumb(p){ if (!p.thumb && !p.queued){ p.queued = true; thumbQueue.push(p); runThumbs(); } }
   async function runThumbs(){
     if (thumbRunning) return; thumbRunning = true;
@@ -411,12 +492,13 @@
       const box = document.createElement('div'); box.className = 'group'; box.dataset.gid = g.gid;
       if (g.items.some(p => p.fresh)){ box.classList.add('enter'); box.style.animationDelay = Math.min(stagger++, 8) * 40 + 'ms'; }
       const title = fids.length === 1 ? f0.name : `${f0.name} 외 ${fids.length-1}개`;
-      box.innerHTML = `<div class="g-head"><span class="dot" style="background:${f0.color}"></span><span class="nm"></span><span class="ct">${g.items.length}쪽</span><span class="sp"></span>
+      box.innerHTML = `<div class="g-head"><span class="dot" style="background:${f0.color}"></span><span class="nm"></span><span class="fn"></span><span class="ct">${g.items.length}쪽</span><span class="sp"></span>
           ${g.items.length > 1 ? '<button class="g-btn" data-a="split" title="한 쪽씩 따로 움직이게 풀기">묶음 풀기</button>' : ''}
           ${gi > 0 ? '<button class="g-btn" data-a="join" title="바로 앞 묶음과 합치기">앞과 묶기</button>' : ''}
           <button class="g-btn x" data-a="rmg" title="이 묶음 빼기" aria-label="이 묶음 빼기">${ICON_X}</button></div>
         <div class="g-body"></div>`;
-      box.querySelector('.nm').textContent = title;
+      box.dataset.first = g.items[0].pid; box.dataset.fallback = title;
+      setHead(box);
       const sb = box.querySelector('[data-a=split]'); if (sb) sb.onclick = () => ungroup(g.gid);
       const jb = box.querySelector('[data-a=join]'); if (jb) jb.onclick = () => joinPrev(g.gid);
       box.querySelector('[data-a=rmg]').onclick = () => removeGroup(g.gid);
@@ -527,7 +609,8 @@
     const i = pages.findIndex(x => x.pid === vPid); if (i < 0) return closeViewer();
     const p = pages[i], f = files.get(p.fid);
     $('vNum').textContent = `${i+1} / ${pages.length}`;
-    $('vName').textContent = f.name + (f.numPages > 1 ? ` · ${p.index+1}쪽` : '');
+    const gFirst = pages.find(x => x.gid === p.gid);
+    $('vName').textContent = (gFirst && gFirst.title ? gFirst.title + ' · ' : '') + f.name + (f.numPages > 1 ? ` · ${p.index+1}쪽` : '');
     $('vPrev').disabled = i === 0; $('vNext').disabled = i === pages.length - 1;
     const stage = $('vStage');
     const fit = () => { const im = stage.querySelector('img'); if (!im) return;
