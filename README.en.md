@@ -4,7 +4,7 @@
 Everything runs inside your browser. Your files are never uploaded anywhere.
 
 <p>
-  <a href="https://iimmuunnee.github.io/hapbon/"><b>👉 Try it now</b></a>
+  <a href="https://iimmuunnee.github.io/hapbon/"><b>Try it now</b></a>
   &nbsp;·&nbsp; <a href="README.md">한국어</a>
 </p>
 

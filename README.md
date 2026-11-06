@@ -4,7 +4,7 @@
 모든 작업이 내 기기 안에서만 이루어지고, 파일은 어디에도 업로드되지 않아요.
 
 <p>
-  <a href="https://iimmuunnee.github.io/hapbon/"><b>👉 바로 써보기</b></a>
+  <a href="https://iimmuunnee.github.io/hapbon/"><b>바로 써보기</b></a>
   &nbsp;·&nbsp; <a href="#내려받기">내려받기</a>
   &nbsp;·&nbsp; <a href="README.en.md">English</a>
 </p>
