@@ -1,0 +1,16 @@
+{
+  "name": "pdf-merge",
+  "version": "1.0.0",
+  "description": "브라우저에서만 동작하는 PDF 합치기 도구 - 파일이 기기 밖으로 나가지 않아요",
+  "private": true,
+  "scripts": {
+    "build": "python3 scripts/build.py src/app.html.tpl index.html"
+  },
+  "author": "임휘훈",
+  "license": "MIT",
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^3.11.174",
+    "sortablejs": "^1.15.3"
+  }
+}
