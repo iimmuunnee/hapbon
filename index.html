@@ -32,9 +32,9 @@
   header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px}
   h1{font-size:26px;font-weight:700;margin:0 0 6px;display:flex;align-items:baseline;gap:10px}
   .h1-sub{font-size:15px;font-weight:600;color:var(--muted)}
-  .lead{margin:0;color:var(--sub);font-size:15px;display:flex;align-items:center;gap:6px}
+  .lead{margin:0;color:var(--sub);font-size:15px;display:flex;align-items:center;gap:6px;word-break:keep-all}
   .lead svg{color:var(--primary);flex:none}
-  .btn{height:44px;padding:0 18px;border-radius:12px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:background .15s var(--ease),transform .1s var(--ease)}
+  .btn{height:44px;padding:0 18px;border-radius:12px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;flex:none;transition:background .15s var(--ease),transform .1s var(--ease)}
   .btn:active:not(:disabled){transform:scale(.97)}
   .btn-secondary{background:var(--primary-soft);color:var(--primary)}
   .btn-secondary:hover{background:var(--primary-soft2,#D6E9FF)}
@@ -213,6 +213,7 @@
     .lead{font-size:13px}
     .btn-secondary{height:40px;padding:0 14px;font-size:14px}
     .theme-btn{width:40px;height:40px}
+    header > div:first-child{min-width:0}
     .grid{gap:12px}
     .group{width:100%;padding:10px}
     .g-body{gap:10px}
@@ -440,7 +441,8 @@
   const files = new Map();   // fid -> {id,name,kind,bytes,mime,color,state:'ready'|'locked'|'error',raster,doc,numPages}
   let pages = [];            // {pid,fid,index,rot,thumb}
   let fseq = 0, pseq = 0, gseq = 0, colorIdx = 0, busy = false;
-  const expanded = new Set();   // 펼쳐 놓은 묶음
+  const expanded = new Set();
+  const stripPos = new Map();   // 펼친 묶음별 가로 스크롤 위치   // 펼쳐 놓은 묶음
   const ICON_EXPAND = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/></svg>';
   const pwQueue = [];
 
@@ -681,7 +683,10 @@
     }
 
     // groups (연속된 같은 gid = 한 묶음)
-    const grid = $('grid'); grid.innerHTML = '';
+    const grid = $('grid');
+    // 다시 그려도 펼친 스트립의 보던 위치 유지
+    grid.querySelectorAll('.group:not(.stack)').forEach(el => { const b = el.querySelector('.g-body'); if (b) stripPos.set(+el.dataset.gid, b.scrollLeft); });
+    grid.innerHTML = '';
     const groups = [];
     pages.forEach(p => { const g = groups[groups.length-1]; if (g && g.gid === p.gid) g.items.push(p); else groups.push({gid:p.gid, items:[p]}); });
     let n = 0, stagger = 0;
@@ -819,6 +824,8 @@
       jump.addEventListener('change', go);
       ['pointerdown','mousedown','touchstart'].forEach(t => jump.addEventListener(t, e => e.stopPropagation()));
     }
+    const keep = stripPos.get(+box.dataset.gid);
+    if (keep) body.scrollLeft = keep;
     requestAnimationFrame(upd);
   }
 
