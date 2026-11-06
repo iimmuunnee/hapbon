@@ -333,7 +333,7 @@
   const pwQueue = [];
 
   const ICON_ROT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>';
-  const ICON_DEL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+  const ICON_DEL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';   // 빼기: 휴지통 (파일 이름표만 X)
   const ICON_X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
   /* ---------- 되돌리기 기록 (Ctrl+Z / ⌘+Z) ---------- */
@@ -583,7 +583,7 @@
           <div class="acts">
             ${cnt > 1 ? `<button class="act" data-a="expand" title="쪽별로 펼치기" aria-label="쪽별로 펼치기">${ICON_EXPAND}</button>`
                       : `<button class="act" data-a="rot" title="오른쪽으로 돌리기" aria-label="오른쪽으로 돌리기">${ICON_ROT}</button>`}
-            <button class="act del" data-a="del" title="빼기" aria-label="빼기">${ICON_DEL}</button>
+            <button class="act del" data-a="del" title="${cnt > 1 ? '이 묶음 빼기' : '이 페이지 빼기'}" aria-label="${cnt > 1 ? '이 묶음 빼기' : '이 페이지 빼기'}">${ICON_DEL}</button>
           </div>
           <div class="c-title hd-nm"></div>
           <div class="c-meta"><span class="badge">${cnt > 1 ? start + '–' + n : start}</span><span class="dot" style="background:${f0.color}"></span><span class="hd-fn"></span><span class="ct">${cnt}쪽</span></div>`;
@@ -606,7 +606,7 @@
           <button class="g-btn" data-a="fold" title="다시 겹쳐서 보기">접기</button>
           ${g.items.length > 1 ? '<button class="g-btn" data-a="split" title="한 쪽씩 따로 움직이게 풀기">묶음 풀기</button>' : ''}
           ${gi > 0 ? '<button class="g-btn" data-a="join" title="바로 앞 묶음과 합치기">앞과 묶기</button>' : ''}
-          <button class="g-btn x" data-a="rmg" title="이 묶음 빼기" aria-label="이 묶음 빼기">${ICON_X}</button></div>
+          <button class="g-btn x" data-a="rmg" title="이 묶음 빼기" aria-label="이 묶음 빼기">${ICON_DEL}</button></div>
         <div class="g-wrap"><div class="fade l"></div><div class="fade r"></div>
           <button class="scroll-btn l" aria-label="왼쪽으로 넘기기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
           <button class="scroll-btn r" aria-label="오른쪽으로 넘기기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
