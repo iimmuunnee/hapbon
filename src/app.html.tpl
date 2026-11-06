@@ -67,7 +67,34 @@
   .g-btn:hover{background:var(--line);color:var(--ink)}
   .g-btn.x{width:28px;padding:0;display:grid;place-items:center}
   .group:hover .g-btn,.group:focus-within .g-btn{opacity:1}
-  .g-body{display:flex;flex-wrap:wrap;gap:14px}
+  .group:not(.stack){flex:1 1 100%;min-width:0}
+  .g-wrap{position:relative}
+  .g-body{display:flex;flex-wrap:nowrap;gap:22px;overflow-x:auto;overscroll-behavior-x:contain;padding:4px 14px 8px;margin:0 -12px;scrollbar-width:none}
+  .g-body::-webkit-scrollbar{display:none}
+  .g-body .page{width:128px;cursor:grab}
+  .g-body .thumb{background:#fff;box-shadow:0 0 0 1px var(--line)}
+  .g-body .thumb img{box-shadow:none}
+  .g-body .cut{left:-11px;margin-left:-12px}
+  .page.flash .thumb{animation:flash 1.4s var(--ease)}
+  @keyframes flash{0%,60%{box-shadow:0 0 0 3px var(--primary)}100%{box-shadow:0 0 0 1px var(--line)}}
+  .fade{position:absolute;top:0;bottom:0;width:56px;pointer-events:none;opacity:0;transition:opacity .2s var(--ease);z-index:3}
+  .fade.l{left:-12px;background:linear-gradient(90deg,#fff 30%,rgba(255,255,255,0))}
+  .fade.r{right:-12px;background:linear-gradient(270deg,#fff 30%,rgba(255,255,255,0))}
+  .g-wrap.can-l .fade.l,.g-wrap.can-r .fade.r{opacity:1}
+  .scroll-btn{position:absolute;top:calc(50% - 32px);width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,27,55,.16);display:grid;place-items:center;color:var(--sub);z-index:4;opacity:0;pointer-events:none;transition:opacity .2s var(--ease)}
+  .scroll-btn:hover{color:var(--ink)}
+  .scroll-btn.l{left:-4px} .scroll-btn.r{right:-4px}
+  .g-wrap.can-l .scroll-btn.l,.g-wrap.can-r .scroll-btn.r{opacity:1;pointer-events:auto}
+  .track{position:relative;height:6px;border-radius:6px;background:var(--fill);margin:6px 2px 0;cursor:pointer;touch-action:none}
+  .track[hidden]{display:none}
+  .track .thumbbar{position:absolute;top:0;bottom:0;left:0;border-radius:6px;background:#C5CCD3;cursor:grab;transition:background .15s}
+  .track:hover .thumbbar,.track.drag .thumbbar{background:#8B95A1}
+  .track.drag .thumbbar{cursor:grabbing}
+  .track::before{content:'';position:absolute;inset:-8px 0}
+  .jump{display:flex;align-items:center;gap:6px;height:28px;padding:0 4px 0 10px;border-radius:8px;background:var(--fill);font-size:12px;color:var(--muted);flex:none}
+  .jump input{width:38px;height:22px;border:1px solid var(--line);border-radius:6px;background:#fff;text-align:center;font:inherit;font-size:12px;color:var(--ink);outline:none;-moz-appearance:textfield}
+  .jump input:focus{border-color:var(--primary)}
+  .jump input::-webkit-outer-spin-button,.jump input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .group.stack{width:180px;padding:12px;position:relative}
   .sheets{position:relative}
   .sheets.n2{margin:0 6px 6px 0} .sheets.n3{margin:0 12px 12px 0}
@@ -173,9 +200,14 @@
     .grid{gap:12px}
     .group{width:100%;padding:10px}
     .g-body{gap:10px}
-    .page{width:calc(50% - 5px)}
+    .g-body .page{width:38vw}
+    .group:not(.stack) .g-head{flex-wrap:wrap;height:auto;row-gap:8px}
+    .group:not(.stack) .g-head .sp{flex-basis:100%;height:0}
+    .group:not(.stack) .g-head .nm{flex:1 1 auto}
+    .scroll-btn{display:none}
+    .jump .lbl{display:none}
     .group.stack{width:calc(50% - 6px)}
-    .cut{left:-5px;margin-left:-12px}
+    .g-body .cut{left:-11px;margin-left:-12px}
     .g-head .nm{max-width:none;flex:0 1 auto;min-width:0}
     .g-head .fn{display:none}
     .bar .in{flex-wrap:wrap;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
@@ -429,7 +461,9 @@
       l.text = t.replace(/\s+/g, ' ').trim();
       l.size = Math.max(...l.items.map(i => i.size));
     }
-    const sizes = items.map(i => i.size).sort((a,b) => a-b), median = sizes[Math.floor(sizes.length/2)];
+    // 본문 크기 = 글자 수 기준 중앙값 (글자가 많은 줄이 본문)
+    const sizes = []; items.forEach(i => { const k = Math.min(200, Math.max(1, i.str.trim().length)); for (let j = 0; j < k; j++) sizes.push(i.size); });
+    sizes.sort((a,b) => a-b); const median = sizes[Math.floor(sizes.length/2)];
     const cand = lines.filter(l => l.y < vp.height * .45 && l.text.replace(/[^\p{L}\p{N}]/gu, '').length >= 2);
     if (!cand.length) return null;
     cand.sort((a,b) => (b.size - a.size) || (a.y - b.y));
@@ -527,7 +561,10 @@
           <div class="c-title hd-nm"></div>
           <div class="c-meta"><span class="badge">${cnt > 1 ? start + '–' + n : start}</span><span class="dot" style="background:${f0.color}"></span><span class="hd-fn"></span><span class="ct">${cnt}쪽</span></div>`;
         box.dataset.first = p.pid; box.dataset.fallback = title; setHead(box);
-        const ex = box.querySelector('[data-a=expand]'); if (ex) ex.onclick = () => { expanded.add(g.gid); render(); };
+        const ex = box.querySelector('[data-a=expand]'); if (ex) ex.onclick = () => {
+          expanded.clear(); expanded.add(g.gid); render();   // 한 번에 하나만 펼치기
+          const el = document.querySelector(`#grid > .group[data-gid="${g.gid}"]`); if (el) el.scrollIntoView({block:'nearest', behavior:'smooth'});
+        };
         const ro = box.querySelector('[data-a=rot]'); if (ro) ro.onclick = () => rotate(p.pid);
         box.querySelector('[data-a=del]').onclick = () => cnt > 1 ? removeGroup(g.gid) : removePage(p.pid);
         box.querySelector('.thumb').onclick = () => openViewer(p.pid);
@@ -538,11 +575,16 @@
       if (g.items.some(p => p.fresh)){ box.classList.add('enter'); box.style.animationDelay = Math.min(stagger++, 8) * 40 + 'ms'; }
       const title = fids.length === 1 ? f0.name : `${f0.name} 외 ${fids.length-1}개`;
       box.innerHTML = `<div class="g-head"><span class="dot" style="background:${f0.color}"></span><span class="nm hd-nm"></span><span class="fn hd-fn"></span><span class="ct">${g.items.length}쪽</span><span class="sp"></span>
+          ${g.items.length > 8 ? `<label class="jump" title="이 묶음 안의 쪽 번호로 이동"><span class="lbl">쪽 이동</span><input type="number" min="1" max="${g.items.length}" inputmode="numeric" aria-label="이동할 쪽 번호"><span>/ ${g.items.length}</span></label>` : ''}
           <button class="g-btn" data-a="fold" title="다시 겹쳐서 보기">접기</button>
           ${g.items.length > 1 ? '<button class="g-btn" data-a="split" title="한 쪽씩 따로 움직이게 풀기">묶음 풀기</button>' : ''}
           ${gi > 0 ? '<button class="g-btn" data-a="join" title="바로 앞 묶음과 합치기">앞과 묶기</button>' : ''}
           <button class="g-btn x" data-a="rmg" title="이 묶음 빼기" aria-label="이 묶음 빼기">${ICON_X}</button></div>
-        <div class="g-body"></div>`;
+        <div class="g-wrap"><div class="fade l"></div><div class="fade r"></div>
+          <button class="scroll-btn l" aria-label="왼쪽으로 넘기기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button class="scroll-btn r" aria-label="오른쪽으로 넘기기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          <div class="g-body"></div></div>
+        <div class="track" hidden><div class="thumbbar"></div></div>`;
       box.dataset.first = g.items[0].pid; box.dataset.fallback = title;
       setHead(box);
       box.querySelector('[data-a=fold]').onclick = () => { expanded.delete(g.gid); render(); };
@@ -571,11 +613,68 @@
         if (!p.thumb) queueThumb(p);
       });
       grid.appendChild(box);
+      setupStrip(box);
     });
     updateBar();
   }
 
   const ICON_CUT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></svg>';
+
+  /* ---------- 펼친 묶음: 가로 스트립 + 직접 그린 스크롤바 + 쪽 이동 ---------- */
+  function setupStrip(box){
+    const wrap = box.querySelector('.g-wrap'), body = box.querySelector('.g-body');
+    const track = box.querySelector('.track'), bar = track.querySelector('.thumbbar');
+    const upd = () => {
+      const max = body.scrollWidth - body.clientWidth;
+      wrap.classList.toggle('can-l', body.scrollLeft > 2);
+      wrap.classList.toggle('can-r', body.scrollLeft < max - 2);
+      track.hidden = max <= 2;
+      if (max > 2){
+        const tw = track.clientWidth, bw = Math.max(40, tw * body.clientWidth / body.scrollWidth);
+        bar.style.width = bw + 'px'; bar.style.transform = `translateX(${(tw - bw) * body.scrollLeft / max}px)`;
+      }
+    };
+    body.addEventListener('scroll', upd, {passive:true});
+    new ResizeObserver(upd).observe(body);
+    const step = () => Math.max(body.clientWidth * .8, 150);
+    box.querySelector('.scroll-btn.l').onclick = () => body.scrollBy({left: -step(), behavior:'smooth'});
+    box.querySelector('.scroll-btn.r').onclick = () => body.scrollBy({left: step(), behavior:'smooth'});
+    // 세로 휠 → 가로 (끝에 닿으면 페이지 스크롤로 넘김)
+    body.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.ctrlKey) return;
+      const max = body.scrollWidth - body.clientWidth; if (max <= 0) return;
+      if ((e.deltaY < 0 && body.scrollLeft <= 0) || (e.deltaY > 0 && body.scrollLeft >= max - 1)) return;
+      e.preventDefault(); body.scrollLeft = Math.max(0, Math.min(max, body.scrollLeft + e.deltaY));
+    }, {passive:false});
+    // 스크롤바 끌기 / 빈 곳 클릭
+    const toScroll = x => { const tw = track.clientWidth, bw = bar.offsetWidth, max = body.scrollWidth - body.clientWidth;
+      body.scrollLeft = Math.max(0, Math.min(1, x / (tw - bw))) * max; };
+    track.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      const r = track.getBoundingClientRect(), bx = new DOMMatrix(getComputedStyle(bar).transform).m41;
+      const onBar = e.target === bar; const grab = onBar ? e.clientX - r.left - bx : bar.offsetWidth / 2;
+      if (!onBar) toScroll(e.clientX - r.left - grab);
+      track.classList.add('drag'); track.setPointerCapture(e.pointerId);
+      const mv = ev => toScroll(ev.clientX - r.left - grab);
+      const up = () => { track.classList.remove('drag'); track.removeEventListener('pointermove', mv); track.removeEventListener('pointerup', up); track.removeEventListener('pointercancel', up); };
+      track.addEventListener('pointermove', mv); track.addEventListener('pointerup', up); track.addEventListener('pointercancel', up);
+    });
+    // 쪽 번호로 이동
+    const jump = box.querySelector('.jump input');
+    if (jump){
+      const go = () => {
+        const n = Math.round(+jump.value); const els = body.querySelectorAll('.page');
+        if (!n || n < 1 || n > els.length){ jump.select(); return; }
+        const el = els[n-1];
+        body.scrollTo({left: el.offsetLeft - (body.clientWidth - el.offsetWidth) / 2, behavior:'smooth'});
+        el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+      };
+      jump.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); go(); } });
+      jump.addEventListener('change', go);
+      ['pointerdown','mousedown','touchstart'].forEach(t => jump.addEventListener(t, e => e.stopPropagation()));
+    }
+    requestAnimationFrame(upd);
+  }
 
   /* ---------- 묶음 ---------- */
   function snapshot(){ return pages.map(p => ({...p})); }
@@ -702,7 +801,7 @@
   new Sortable($('grid'), {
     animation: 220, easing: 'cubic-bezier(.2,.8,.2,1)',
     delay: 200, delayOnTouchOnly: true, touchStartThreshold: 6,
-    ghostClass: 'ghost', chosenClass: 'chosen', filter: '.act,.g-btn,.cut', preventOnFilter: false,
+    ghostClass: 'ghost', chosenClass: 'chosen', filter: '.act,.g-btn,.cut,.scroll-btn,.track,.jump', preventOnFilter: false,
     onEnd(){
       const order = [...$('grid').children].map(el => +el.dataset.gid);
       const idx = new Map(pages.map((p,i) => [p.pid, i]));
