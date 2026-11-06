@@ -598,13 +598,16 @@
 
   /* ---------- render ---------- */
   function render(){
-    const has = files.size > 0;
+    // 보이는 파일 = 직접 빼지 않았고, 페이지가 남아 있거나 아직 열지 못한(암호/오류) 파일
+    const visible = [...files.values()].filter(f => !f.removed && (f.state !== 'ready' || pages.some(p => p.fid === f.id)));
+    visible.forEach((f, i) => f.color = COLORS[i % COLORS.length]);   // 남은 순서대로 색 다시 매기기
+    const has = visible.length > 0 || pages.length > 0;
     $('empty').hidden = has; $('work').hidden = !has; $('addBtn').hidden = !has;
     $('bar').classList.toggle('show', has);
 
     // file chips
     const fc = $('files'); fc.innerHTML = '';
-    for (const f of files.values()){
+    for (const f of visible){
       const ch = document.createElement('div');
       ch.className = 'chip' + (f.state==='locked' ? ' locked' : f.state==='error' ? ' error' : '');
       const cnt = f.state==='ready' ? `${pages.filter(p=>p.fid===f.id).length}쪽` : f.state==='locked' ? '' : '열 수 없는 파일';
@@ -790,9 +793,9 @@
   }
 
   function updateBar(){
-    const ready = [...files.values()].filter(f=>f.state==='ready').length;
+    const ready = [...files.values()].filter(f => !f.removed && f.state==='ready' && pages.some(p => p.fid === f.id)).length;
     $('sum').innerHTML = `<b>${pages.length}쪽</b> · 파일 ${ready}개`;
-    const locked = [...files.values()].some(f=>f.state==='locked');
+    const locked = [...files.values()].some(f => !f.removed && f.state==='locked');
     $('warn').hidden = !locked; $('warn').textContent = locked ? '암호를 입력하지 않은 파일은 빠져요' : '';
     if (!busy) $('saveBtn').disabled = pages.length === 0;
   }
@@ -816,10 +819,10 @@
   }
   function removeFile(fid){
     const f = files.get(fid);
-    const snapshot = pages.slice();
-    pages = pages.filter(p=>p.fid!==fid); files.delete(fid);
-    render();
-    toast(`${f.name}을(를) 뺐어요`, () => { files.set(fid,f); pages = snapshot; render(); });
+    const snap = snapshot();
+    pages = pages.filter(p=>p.fid!==fid); f.removed = true;
+    render(); removedCleanup();
+    toast(`${f.name}을(를) 뺐어요`, () => { f.removed = false; restore(snap); });
   }
 
   /* ---------- viewer ---------- */
