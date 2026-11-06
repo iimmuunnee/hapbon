@@ -8,7 +8,7 @@ Everything runs inside your browser. Your files are never uploaded anywhere.
   &nbsp;·&nbsp; <a href="README.md">한국어</a>
 </p>
 
-> The interface is in Korean for now. The icons and drag-and-drop work the same in any language.
+> Available in 8 languages: 한국어, English, 日本語, 简体中文, 繁體中文, Español, Français, Deutsch. The page opens in your browser language, and you can switch anytime from the menu at the top.
 
 ![Hapbon main screen](docs/images/main.png)
 
@@ -45,6 +45,7 @@ The documents in the demo are samples with no real personal data.
 - **Expand and split**: expand a card into a one-row strip with a scrollbar, jump to a page by number, and split with the scissors button.
 - **Rotate, remove, preview** any page.
 - **Undo** everything with `Ctrl+Z` / `⌘Z` (up to 50 steps).
+- **8 languages**, picked from your browser language, switchable from the header.
 - **Light and dark mode**, following your system setting by default.
 - **Korean CMaps built in**, so Korean government PDFs render correctly.
 - Leave the file name empty and it is saved as `합본_YYYY-MM-DD.pdf`.
