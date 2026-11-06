@@ -44,8 +44,8 @@
   .chip .dot{width:8px;height:8px;border-radius:50%;flex:none}
   .chip .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .chip .ct{color:var(--muted);flex:none}
-  .chip .x{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:var(--muted);flex:none}
-  .chip .x:hover{background:var(--fill);color:var(--ink)}
+  .chip .x{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:var(--danger);flex:none;transition:background .15s var(--ease)}
+  .chip .x:hover{background:#FFEEEE;color:var(--danger)}
   .chip.locked{background:#FFF4E6;color:#B25E09}
   .chip.locked .unlock{font-weight:600;color:#B25E09;text-decoration:underline;text-underline-offset:2px;padding:0 4px}
   .chip.error{background:#FFEEEE;color:var(--danger)}
@@ -65,7 +65,8 @@
   .g-head .sp{flex:1}
   .g-btn{height:28px;padding:0 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--sub);background:var(--fill);flex:none;opacity:0;transition:opacity .15s var(--ease),background .15s var(--ease)}
   .g-btn:hover{background:var(--line);color:var(--ink)}
-  .g-btn.x{width:28px;padding:0;display:grid;place-items:center}
+  .g-btn.x{width:28px;padding:0;display:grid;place-items:center;color:var(--danger);background:#FFF5F5}
+  .g-btn.x:hover{background:#FFE3E3;color:var(--danger)}
   .group:hover .g-btn,.group:focus-within .g-btn{opacity:1}
   .group:not(.stack){flex:1 1 100%;min-width:0}
   .g-wrap{position:relative}
@@ -128,7 +129,8 @@
   .page:hover .acts,.page:focus-within .acts{opacity:1}
   .act{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.95);box-shadow:0 1px 4px rgba(0,27,55,.12);display:grid;place-items:center;color:var(--sub)}
   .act:hover{color:var(--ink)}
-  .act.del:hover{color:var(--danger)}
+  .act.del{color:var(--danger)}
+  .act.del:hover{background:#FFF5F5;color:var(--danger)}
   .cap{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--muted);padding:0 2px}
   .cap .dot{width:6px;height:6px;border-radius:50%;flex:none}
   .cap .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
@@ -153,7 +155,9 @@
   /* toast */
   .toast{position:fixed;z-index:30;left:50%;bottom:96px;transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#333D4B;color:#fff;border-radius:999px;padding:12px 20px;font-size:14px;display:flex;align-items:center;gap:14px;transition:opacity .2s var(--ease),transform .2s var(--ease);white-space:nowrap}
   .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
-  .toast button{color:#64A8FF;font-weight:600}
+  .toast button{color:#64A8FF;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+  .toast kbd{font:inherit;font-size:11px;font-weight:600;color:#C5CCD3;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-bottom-width:2px;border-radius:6px;padding:1px 6px;letter-spacing:.02em}
+  @media (hover:none){ .toast kbd{display:none} }
 
   /* modal */
   .scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.4);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s var(--ease)}
@@ -265,7 +269,7 @@
   </div>
 </div>
 
-<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" hidden>되돌리기</button></div>
+<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" hidden>되돌리기<kbd id="undoKey">Ctrl+Z</kbd></button></div>
 
 <div class="scrim" id="scrim">
   <form class="modal" id="pwForm" autocomplete="off">
@@ -393,6 +397,8 @@
 
   /* ---------- 되돌리기 기록 (Ctrl+Z / ⌘+Z) ---------- */
   const undoStack = [];
+  const IS_MAC = /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+  $('undoKey').textContent = IS_MAC ? '⌘Z' : 'Ctrl+Z';
   function pushUndo(fn){ undoStack.push(fn); if (undoStack.length > 50) undoStack.shift(); }
   function undoLast(){
     const fn = undoStack.pop();
