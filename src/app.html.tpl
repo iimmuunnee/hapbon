@@ -219,7 +219,11 @@
 
   @media (max-width:640px){
     .wrap{padding:28px 16px 150px}
-    header{flex-direction:row;align-items:center}
+    header{flex-direction:column;align-items:stretch;gap:14px}
+    header > div:first-child{width:100%}
+    h1{flex-wrap:wrap;row-gap:2px}
+    .hdr-r{width:100%;justify-content:flex-end;gap:4px}
+    .hdr-r .lang-sel{margin-right:auto}
     h1{font-size:22px}
     .lead{font-size:13px}
     .btn-secondary{height:40px;padding:0 14px;font-size:14px}
@@ -252,6 +256,12 @@
   footer{margin-top:48px;text-align:center;font-size:12px;color:var(--muted);letter-spacing:0}
   footer b{font-weight:600;color:var(--sub)}
   .hdr-r{display:flex;align-items:center;gap:8px}
+  .lang-sel{position:relative;display:flex;align-items:center;height:44px;border-radius:12px;color:var(--sub);transition:background .15s var(--ease),color .15s}
+  .lang-sel:hover{background:var(--card);color:var(--ink)}
+  .lang-sel svg{position:absolute;left:12px;pointer-events:none}
+  .lang-sel select{appearance:none;-webkit-appearance:none;height:44px;border:0;background:transparent;color:inherit;font:inherit;font-size:14px;font-weight:600;padding:0 14px 0 38px;border-radius:12px;cursor:pointer;outline:none}
+  .lang-sel select:focus-visible{box-shadow:0 0 0 2px var(--primary)}
+  .lang-sel option{color:#191F28;background:#fff}
   .theme-btn{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--sub);transition:background .15s var(--ease),color .15s}
   .theme-btn:hover{background:var(--card);color:var(--ink)}
   .theme-btn .i-sun{display:none}
@@ -279,20 +289,24 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>합본 <span class="h1-sub">PDF 합치기</span></h1>
+      <h1><span data-i18n="brand">합본</span> <span class="h1-sub" data-i18n="sub">PDF 합치기</span></h1>
       <p class="lead">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
-        파일은 이 컴퓨터 밖으로 나가지 않아요
+        <span data-i18n="lead">파일은 이 컴퓨터 밖으로 나가지 않아요</span>
       </p>
     </div>
     <div class="hdr-r">
-      <button class="theme-btn" id="themeBtn" aria-label="화면 모드 바꾸기">
+      <label class="lang-sel" data-i18n-title="lang">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9M12 3C9.5 5.6 8.2 8.6 8.2 12s1.3 6.4 3.8 9"/></svg>
+        <select id="langSel" data-i18n-aria="lang"></select>
+      </label>
+      <button class="theme-btn" id="themeBtn" aria-label="화면 모드 바꾸기" data-i18n-aria="theme">
         <svg class="i-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         <svg class="i-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
       <button class="btn btn-secondary" id="addBtn" hidden>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-        파일 추가
+        <span data-i18n="add">파일 추가</span>
       </button>
     </div>
   </header>
@@ -314,41 +328,41 @@
 <div class="bar" id="bar">
   <div class="in">
     <div class="sum" id="sum"></div>
-    <label class="name"><input id="outname" value="" placeholder="합본 이름 적기" aria-label="합본 파일 이름" spellcheck="false" autocomplete="off"><span>.pdf</span></label>
+    <label class="name"><input id="outname" value="" placeholder="합본 이름 적기" aria-label="합본 파일 이름" data-i18n-ph="namePh" data-i18n-aria="nameAria" spellcheck="false" autocomplete="off"><span>.pdf</span></label>
     <span class="warn" id="warn" hidden></span>
-    <button class="btn btn-primary" id="saveBtn">PDF로 저장</button>
+    <button class="btn btn-primary" id="saveBtn" data-i18n="save">PDF로 저장</button>
   </div>
 </div>
 
-<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" hidden>되돌리기<kbd id="undoKey">Ctrl+Z</kbd></button></div>
+<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" hidden><span data-i18n="undo">되돌리기</span><kbd id="undoKey">Ctrl+Z</kbd></button></div>
 
 <div class="scrim" id="scrim">
   <form class="modal" id="pwForm" autocomplete="off">
-    <h2>암호를 입력해 주세요</h2>
-    <p><b id="pwName"></b> 파일에 암호가 걸려 있어요. 암호를 입력하면 풀린 상태로 합쳐요.</p>
-    <div class="field" id="pwField"><input type="password" id="pwInput" placeholder="PDF 암호"></div>
+    <h2 data-i18n="pwTitle">암호를 입력해 주세요</h2>
+    <p><b id="pwName"></b><span data-i18n="pwDesc"> 파일에 암호가 걸려 있어요. 암호를 입력하면 풀린 상태로 합쳐요.</span></p>
+    <div class="field" id="pwField"><input type="password" id="pwInput" placeholder="PDF 암호" data-i18n-ph="pwPh"></div>
     <div class="err-msg" id="pwErr"></div>
     <div class="row">
-      <button type="button" class="btn btn-ghost" id="pwLater">나중에</button>
-      <button type="submit" class="btn btn-primary">확인</button>
+      <button type="button" class="btn btn-ghost" id="pwLater" data-i18n="later">나중에</button>
+      <button type="submit" class="btn btn-primary" data-i18n="ok">확인</button>
     </div>
   </form>
 </div>
 
-<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="페이지 크게 보기">
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="페이지 크게 보기" data-i18n-aria="viewer">
   <div class="v-top">
     <div class="v-title"><span class="badge" id="vNum"></span><span class="nm" id="vName"></span></div>
-    <button class="v-btn" id="vRot" title="오른쪽으로 돌리기" aria-label="오른쪽으로 돌리기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
-    <button class="v-btn" id="vClose" title="닫기 (Esc)" aria-label="닫기"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="v-btn" id="vRot" title="오른쪽으로 돌리기" aria-label="오른쪽으로 돌리기" data-i18n-title="rotate" data-i18n-aria="rotate"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+    <button class="v-btn" id="vClose" title="닫기 (Esc)" aria-label="닫기" data-i18n-title="close|(Esc)" data-i18n-aria="close"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div class="v-body">
-    <button class="v-btn" id="vPrev" title="이전 페이지 (←)" aria-label="이전 페이지"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button class="v-btn" id="vPrev" title="이전 페이지 (←)" aria-label="이전 페이지" data-i18n-title="prev|(←)" data-i18n-aria="prev"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
     <div class="v-stage" id="vStage"></div>
-    <button class="v-btn" id="vNext" title="다음 페이지 (→)" aria-label="다음 페이지"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+    <button class="v-btn" id="vNext" title="다음 페이지 (→)" aria-label="다음 페이지" data-i18n-title="next|(→)" data-i18n-aria="next"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
   </div>
 </div>
 
-<div class="drop-ov" id="dropOv">여기에 놓으면 추가돼요</div>
+<div class="drop-ov" id="dropOv" data-i18n="dropHere">여기에 놓으면 추가돼요</div>
 <input type="file" id="picker" accept="application/pdf,image/*" multiple hidden>
 
 <script>__PDFLIB__</script>
@@ -373,13 +387,217 @@
   const DOC_OPTS = {CMapReaderFactory: LocalCMapFactory, cMapUrl: 'local/', cMapPacked: true, useWorkerFetch: false, isEvalSupported: false};
   pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([document.getElementById('worker-src').textContent], {type:'text/javascript'}));
 
+  /* ---------- 번역표 ---------- */
+  const LANGS = [['ko','한국어'],['en','English'],['ja','日本語'],['zh-CN','简体中文'],['zh-TW','繁體中文'],['es','Español'],['fr','Français'],['de','Deutsch']];
+  const plural = (n, one, many) => n === 1 ? one : many;
+  const I18N = {
+    ko: {
+      brand:'합본', sub:'PDF 합치기', lead:'파일은 이 컴퓨터 밖으로 나가지 않아요', add:'파일 추가', lang:'언어',
+      emptyTitle:'PDF나 사진을 끌어다 놓으세요', emptyTitleTouch:'눌러서 PDF나 사진을 골라 주세요',
+      orClick:'눌러서 고를 수도 있어요', formats:'PDF, 사진(JPG, PNG, HEIC)', mix:'넣은 파일의 모든 페이지를 원하는 순서로 섞을 수 있어요',
+      hint:'끌어서 순서를 바꾸세요. 여러 쪽짜리 PDF는 겹쳐서 함께 움직이고, 펼치면 쪽별로 보고 나눌 수 있어요.',
+      hintTouch:'꾹 눌러서 끌면 순서가 바뀌어요. 여러 쪽짜리는 펼쳐서 쪽별로 나눌 수 있어요.',
+      namePh:'합본 이름 적기', nameAria:'합본 파일 이름', save:'PDF로 저장', saving:'만드는 중', undo:'되돌리기',
+      pwTitle:'암호를 입력해 주세요', pwDesc:' 파일에 암호가 걸려 있어요. 암호를 입력하면 풀린 상태로 합쳐요.', pwPh:'PDF 암호', later:'나중에', ok:'확인',
+      pwWrong:'암호가 맞지 않아요. 다시 확인해 주세요', unlocked:'암호를 풀었어요',
+      viewer:'페이지 크게 보기', rotate:'오른쪽으로 돌리기', close:'닫기', prev:'이전 페이지', next:'다음 페이지', dropHere:'여기에 놓으면 추가돼요',
+      toDark:'다크 모드로 바꾸기', toLight:'라이트 모드로 바꾸기', theme:'화면 모드 바꾸기',
+      nothingUndo:'더 되돌릴 작업이 없어요', undone:'되돌렸어요', onlyPdfImg:'PDF나 사진만 넣을 수 있어요',
+      badPhoto: n => `${n}은(는) 이 브라우저에서 열 수 없는 사진이에요`,
+      cantOpen:'열 수 없는 파일', enterPw:'암호 입력', removeFile:'파일 빼기', andMore:(n,k) => `${n} 외 ${k}개`,
+      expand:'쪽별로 펼치기', removeGroup:'이 묶음 빼기', removePage:'이 페이지 빼기',
+      jumpTitle:'이 묶음 안의 쪽 번호로 이동', jumpLbl:'쪽 이동', jumpAria:'이동할 쪽 번호',
+      fold:'접기', foldTitle:'다시 겹쳐서 보기', split:'묶음 풀기', splitTitle:'한 쪽씩 따로 움직이게 풀기', join:'앞과 묶기', joinTitle:'바로 앞 묶음과 합치기',
+      scrollL:'왼쪽으로 넘기기', scrollR:'오른쪽으로 넘기기', cut:'여기서 나누기',
+      toastSplit:'묶음을 나눴어요', toastUngroup:'한 쪽씩 따로 움직일 수 있어요', toastJoin:'앞 묶음과 합쳤어요',
+      removedCount: n => `${n}쪽을 뺐어요`, removedPageNo: n => `${n}쪽을 뺐어요`, removedFile: n => `${n}을(를) 뺐어요`,
+      pages: n => `${n}쪽`, pageNo: n => `${n}쪽`, sum:(p,f) => `<b>${p}</b> · 파일 ${f}개`,
+      lockedWarn:'암호를 입력하지 않은 파일은 빠져요', defaultName:'합본', saved: n => `${n}을(를) 저장했어요`, saveFail:'저장하지 못했어요. 파일을 다시 확인해 주세요'
+    },
+    en: {
+      brand:'Hapbon', sub:'PDF Merge', lead:'Your files never leave this device', add:'Add files', lang:'Language',
+      emptyTitle:'Drop PDFs or photos here', emptyTitleTouch:'Tap to choose PDFs or photos',
+      orClick:'Or click to choose', formats:'PDF, photos (JPG, PNG, HEIC)', mix:'Arrange every page of every file in any order',
+      hint:'Drag to reorder. Multi-page PDFs move together as a stack; expand one to see and split its pages.',
+      hintTouch:'Press and hold to drag. Expand multi-page PDFs to split them.',
+      namePh:'Name your file', nameAria:'File name', save:'Save PDF', saving:'Creating', undo:'Undo',
+      pwTitle:'Enter password', pwDesc:' is password-protected. Enter the password to add it unlocked.', pwPh:'PDF password', later:'Later', ok:'OK',
+      pwWrong:'Wrong password. Please try again.', unlocked:'Unlocked',
+      viewer:'Page preview', rotate:'Rotate right', close:'Close', prev:'Previous page', next:'Next page', dropHere:'Drop to add',
+      toDark:'Switch to dark mode', toLight:'Switch to light mode', theme:'Toggle theme',
+      nothingUndo:'Nothing to undo', undone:'Undone', onlyPdfImg:'Only PDFs and photos can be added',
+      badPhoto: n => `Can't open ${n} in this browser`,
+      cantOpen:"Can't open", enterPw:'Enter password', removeFile:'Remove file', andMore:(n,k) => `${n} +${k} more`,
+      expand:'Expand pages', removeGroup:'Remove this stack', removePage:'Remove this page',
+      jumpTitle:'Go to a page in this stack', jumpLbl:'Go to', jumpAria:'Page number',
+      fold:'Collapse', foldTitle:'Stack again', split:'Ungroup', splitTitle:'Move pages one by one', join:'Join previous', joinTitle:'Merge with the previous stack',
+      scrollL:'Scroll left', scrollR:'Scroll right', cut:'Split here',
+      toastSplit:'Split', toastUngroup:'Pages can now move one by one', toastJoin:'Joined with previous',
+      removedCount: n => `Removed ${plural(n,'1 page',n+' pages')}`, removedPageNo: n => `Removed page ${n}`, removedFile: n => `Removed ${n}`,
+      pages: n => plural(n,'1 page',`${n} pages`), pageNo: n => `p. ${n}`, sum:(p,f) => `<b>${p}</b> · ${plural(f,'1 file',f+' files')}`,
+      lockedWarn:'Files without a password will be skipped', defaultName:'merged', saved: n => `Saved ${n}`, saveFail:"Couldn't save. Please check your files."
+    },
+    ja: {
+      brand:'Hapbon', sub:'PDF結合', lead:'ファイルはこのデバイスの外に出ません', add:'ファイルを追加', lang:'言語',
+      emptyTitle:'PDFや写真をここにドロップ', emptyTitleTouch:'タップしてPDFや写真を選択',
+      orClick:'クリックして選ぶこともできます', formats:'PDF、写真（JPG・PNG・HEIC）', mix:'すべてのファイルのすべてのページを好きな順番に並べられます',
+      hint:'ドラッグで並べ替えます。複数ページのPDFは重なったまままとめて動き、展開するとページごとに見て分割できます。',
+      hintTouch:'長押ししてドラッグで並べ替え。複数ページは展開して分割できます。',
+      namePh:'ファイル名を入力', nameAria:'ファイル名', save:'PDFを保存', saving:'作成中', undo:'元に戻す',
+      pwTitle:'パスワードを入力してください', pwDesc:' はパスワードで保護されています。入力すると解除した状態で結合します。', pwPh:'PDFのパスワード', later:'あとで', ok:'OK',
+      pwWrong:'パスワードが違います。もう一度確認してください', unlocked:'解除しました',
+      viewer:'ページを拡大表示', rotate:'右に回転', close:'閉じる', prev:'前のページ', next:'次のページ', dropHere:'ドロップして追加',
+      toDark:'ダークモードに切り替え', toLight:'ライトモードに切り替え', theme:'表示モードを切り替え',
+      nothingUndo:'元に戻す操作はありません', undone:'元に戻しました', onlyPdfImg:'追加できるのはPDFと写真だけです',
+      badPhoto: n => `${n} はこのブラウザで開けません`,
+      cantOpen:'開けません', enterPw:'パスワード入力', removeFile:'ファイルを外す', andMore:(n,k) => `${n} ほか${k}件`,
+      expand:'ページを展開', removeGroup:'このまとまりを外す', removePage:'このページを外す',
+      jumpTitle:'このまとまりのページへ移動', jumpLbl:'移動', jumpAria:'ページ番号',
+      fold:'たたむ', foldTitle:'もう一度重ねる', split:'まとまりを解除', splitTitle:'1ページずつ動かせるようにする', join:'前とまとめる', joinTitle:'直前のまとまりと結合',
+      scrollL:'左へスクロール', scrollR:'右へスクロール', cut:'ここで分割',
+      toastSplit:'分割しました', toastUngroup:'1ページずつ動かせます', toastJoin:'前のまとまりと結合しました',
+      removedCount: n => `${n}ページを外しました`, removedPageNo: n => `${n}ページ目を外しました`, removedFile: n => `${n} を外しました`,
+      pages: n => `${n}ページ`, pageNo: n => `${n}ページ`, sum:(p,f) => `<b>${p}</b> · ファイル${f}件`,
+      lockedWarn:'パスワード未入力のファイルは含まれません', defaultName:'結合', saved: n => `${n} を保存しました`, saveFail:'保存できませんでした。ファイルを確認してください'
+    },
+    'zh-CN': {
+      brand:'Hapbon', sub:'PDF 合并', lead:'文件不会离开这台设备', add:'添加文件', lang:'语言',
+      emptyTitle:'将 PDF 或照片拖到这里', emptyTitleTouch:'点按选择 PDF 或照片',
+      orClick:'也可以点击选择', formats:'PDF、照片（JPG、PNG、HEIC）', mix:'所有文件的每一页都能按任意顺序排列',
+      hint:'拖动即可调整顺序。多页 PDF 会叠在一起整体移动，展开后可逐页查看和拆分。',
+      hintTouch:'长按拖动即可调整顺序。多页文件可展开后拆分。',
+      namePh:'输入文件名', nameAria:'文件名', save:'保存 PDF', saving:'正在生成', undo:'撤销',
+      pwTitle:'请输入密码', pwDesc:' 受密码保护。输入密码后将以解锁状态合并。', pwPh:'PDF 密码', later:'稍后', ok:'确定',
+      pwWrong:'密码不正确，请重新输入', unlocked:'已解锁',
+      viewer:'页面预览', rotate:'向右旋转', close:'关闭', prev:'上一页', next:'下一页', dropHere:'松开即可添加',
+      toDark:'切换到深色模式', toLight:'切换到浅色模式', theme:'切换显示模式',
+      nothingUndo:'没有可撤销的操作', undone:'已撤销', onlyPdfImg:'只能添加 PDF 和照片',
+      badPhoto: n => `此浏览器无法打开 ${n}`,
+      cantOpen:'无法打开', enterPw:'输入密码', removeFile:'移除文件', andMore:(n,k) => `${n} 等 ${k+1} 个`,
+      expand:'展开页面', removeGroup:'移除这一组', removePage:'移除此页',
+      jumpTitle:'跳转到本组中的某一页', jumpLbl:'跳转', jumpAria:'页码',
+      fold:'收起', foldTitle:'重新叠起', split:'取消分组', splitTitle:'拆开后逐页移动', join:'与前一组合并', joinTitle:'与前一组合并',
+      scrollL:'向左滚动', scrollR:'向右滚动', cut:'在此拆分',
+      toastSplit:'已拆分', toastUngroup:'现在可以逐页移动', toastJoin:'已与前一组合并',
+      removedCount: n => `已移除 ${n} 页`, removedPageNo: n => `已移除第 ${n} 页`, removedFile: n => `已移除 ${n}`,
+      pages: n => `${n} 页`, pageNo: n => `第 ${n} 页`, sum:(p,f) => `<b>${p}</b> · ${f} 个文件`,
+      lockedWarn:'未输入密码的文件不会包含在内', defaultName:'合并', saved: n => `已保存 ${n}`, saveFail:'保存失败，请检查文件'
+    },
+    'zh-TW': {
+      brand:'Hapbon', sub:'PDF 合併', lead:'檔案不會離開這台裝置', add:'新增檔案', lang:'語言',
+      emptyTitle:'將 PDF 或照片拖曳到這裡', emptyTitleTouch:'點按選擇 PDF 或照片',
+      orClick:'也可以點擊選擇', formats:'PDF、照片（JPG、PNG、HEIC）', mix:'所有檔案的每一頁都能依任意順序排列',
+      hint:'拖曳即可調整順序。多頁 PDF 會疊在一起整體移動，展開後可逐頁檢視與拆分。',
+      hintTouch:'長按拖曳即可調整順序。多頁檔案可展開後拆分。',
+      namePh:'輸入檔案名稱', nameAria:'檔案名稱', save:'儲存 PDF', saving:'正在產生', undo:'復原',
+      pwTitle:'請輸入密碼', pwDesc:' 受密碼保護。輸入密碼後將以解鎖狀態合併。', pwPh:'PDF 密碼', later:'稍後', ok:'確定',
+      pwWrong:'密碼不正確，請重新輸入', unlocked:'已解鎖',
+      viewer:'頁面預覽', rotate:'向右旋轉', close:'關閉', prev:'上一頁', next:'下一頁', dropHere:'放開即可新增',
+      toDark:'切換到深色模式', toLight:'切換到淺色模式', theme:'切換顯示模式',
+      nothingUndo:'沒有可復原的操作', undone:'已復原', onlyPdfImg:'只能新增 PDF 和照片',
+      badPhoto: n => `此瀏覽器無法開啟 ${n}`,
+      cantOpen:'無法開啟', enterPw:'輸入密碼', removeFile:'移除檔案', andMore:(n,k) => `${n} 等 ${k+1} 個`,
+      expand:'展開頁面', removeGroup:'移除這一組', removePage:'移除此頁',
+      jumpTitle:'跳到本組中的某一頁', jumpLbl:'跳至', jumpAria:'頁碼',
+      fold:'收合', foldTitle:'重新疊起', split:'取消分組', splitTitle:'拆開後逐頁移動', join:'與前一組合併', joinTitle:'與前一組合併',
+      scrollL:'向左捲動', scrollR:'向右捲動', cut:'在此拆分',
+      toastSplit:'已拆分', toastUngroup:'現在可以逐頁移動', toastJoin:'已與前一組合併',
+      removedCount: n => `已移除 ${n} 頁`, removedPageNo: n => `已移除第 ${n} 頁`, removedFile: n => `已移除 ${n}`,
+      pages: n => `${n} 頁`, pageNo: n => `第 ${n} 頁`, sum:(p,f) => `<b>${p}</b> · ${f} 個檔案`,
+      lockedWarn:'未輸入密碼的檔案不會包含在內', defaultName:'合併', saved: n => `已儲存 ${n}`, saveFail:'儲存失敗，請檢查檔案'
+    },
+    es: {
+      brand:'Hapbon', sub:'Unir PDF', lead:'Tus archivos nunca salen de este dispositivo', add:'Añadir archivos', lang:'Idioma',
+      emptyTitle:'Arrastra aquí PDF o fotos', emptyTitleTouch:'Toca para elegir PDF o fotos',
+      orClick:'O haz clic para elegir', formats:'PDF, fotos (JPG, PNG, HEIC)', mix:'Ordena todas las páginas de todos los archivos como quieras',
+      hint:'Arrastra para reordenar. Los PDF de varias páginas se mueven juntos como una pila; despliégalos para ver y dividir sus páginas.',
+      hintTouch:'Mantén pulsado para arrastrar. Despliega los PDF de varias páginas para dividirlos.',
+      namePh:'Nombre del archivo', nameAria:'Nombre del archivo', save:'Guardar PDF', saving:'Creando', undo:'Deshacer',
+      pwTitle:'Introduce la contraseña', pwDesc:' está protegido con contraseña. Introdúcela para añadirlo desbloqueado.', pwPh:'Contraseña del PDF', later:'Más tarde', ok:'Aceptar',
+      pwWrong:'Contraseña incorrecta. Inténtalo de nuevo.', unlocked:'Desbloqueado',
+      viewer:'Vista de página', rotate:'Girar a la derecha', close:'Cerrar', prev:'Página anterior', next:'Página siguiente', dropHere:'Suelta para añadir',
+      toDark:'Cambiar a modo oscuro', toLight:'Cambiar a modo claro', theme:'Cambiar tema',
+      nothingUndo:'No hay nada que deshacer', undone:'Deshecho', onlyPdfImg:'Solo se pueden añadir PDF y fotos',
+      badPhoto: n => `No se puede abrir ${n} en este navegador`,
+      cantOpen:'No se puede abrir', enterPw:'Contraseña', removeFile:'Quitar archivo', andMore:(n,k) => `${n} y ${k} más`,
+      expand:'Desplegar páginas', removeGroup:'Quitar este grupo', removePage:'Quitar esta página',
+      jumpTitle:'Ir a una página de este grupo', jumpLbl:'Ir a', jumpAria:'Número de página',
+      fold:'Plegar', foldTitle:'Volver a apilar', split:'Desagrupar', splitTitle:'Mover las páginas por separado', join:'Unir con el anterior', joinTitle:'Unir con el grupo anterior',
+      scrollL:'Desplazar a la izquierda', scrollR:'Desplazar a la derecha', cut:'Dividir aquí',
+      toastSplit:'Dividido', toastUngroup:'Ahora puedes mover las páginas por separado', toastJoin:'Unido con el anterior',
+      removedCount: n => plural(n,'Se quitó 1 página',`Se quitaron ${n} páginas`), removedPageNo: n => `Se quitó la página ${n}`, removedFile: n => `Se quitó ${n}`,
+      pages: n => plural(n,'1 página',`${n} páginas`), pageNo: n => `pág. ${n}`, sum:(p,f) => `<b>${p}</b> · ${plural(f,'1 archivo',f+' archivos')}`,
+      lockedWarn:'Los archivos sin contraseña se omitirán', defaultName:'combinado', saved: n => `Se guardó ${n}`, saveFail:'No se pudo guardar. Revisa los archivos.'
+    },
+    fr: {
+      brand:'Hapbon', sub:'Fusion PDF', lead:'Vos fichiers ne quittent jamais cet appareil', add:'Ajouter des fichiers', lang:'Langue',
+      emptyTitle:'Déposez des PDF ou des photos ici', emptyTitleTouch:'Touchez pour choisir des PDF ou des photos',
+      orClick:'Ou cliquez pour choisir', formats:'PDF, photos (JPG, PNG, HEIC)', mix:'Réorganisez toutes les pages de tous les fichiers comme vous voulez',
+      hint:'Faites glisser pour réorganiser. Les PDF de plusieurs pages se déplacent ensemble en pile ; dépliez-les pour voir et diviser leurs pages.',
+      hintTouch:'Appuyez longuement pour déplacer. Dépliez les PDF de plusieurs pages pour les diviser.',
+      namePh:'Nom du fichier', nameAria:'Nom du fichier', save:'Enregistrer le PDF', saving:'Création', undo:'Annuler',
+      pwTitle:'Saisissez le mot de passe', pwDesc:' est protégé par un mot de passe. Saisissez-le pour l’ajouter déverrouillé.', pwPh:'Mot de passe du PDF', later:'Plus tard', ok:'OK',
+      pwWrong:'Mot de passe incorrect. Réessayez.', unlocked:'Déverrouillé',
+      viewer:'Aperçu de la page', rotate:'Pivoter à droite', close:'Fermer', prev:'Page précédente', next:'Page suivante', dropHere:'Déposez pour ajouter',
+      toDark:'Passer en mode sombre', toLight:'Passer en mode clair', theme:'Changer de thème',
+      nothingUndo:'Rien à annuler', undone:'Annulé', onlyPdfImg:'Seuls les PDF et les photos sont acceptés',
+      badPhoto: n => `Impossible d’ouvrir ${n} dans ce navigateur`,
+      cantOpen:'Illisible', enterPw:'Mot de passe', removeFile:'Retirer le fichier', andMore:(n,k) => `${n} et ${k} autre${k>1?'s':''}`,
+      expand:'Déplier les pages', removeGroup:'Retirer ce groupe', removePage:'Retirer cette page',
+      jumpTitle:'Aller à une page de ce groupe', jumpLbl:'Aller à', jumpAria:'Numéro de page',
+      fold:'Replier', foldTitle:'Réempiler', split:'Dégrouper', splitTitle:'Déplacer les pages une par une', join:'Joindre au précédent', joinTitle:'Fusionner avec le groupe précédent',
+      scrollL:'Défiler à gauche', scrollR:'Défiler à droite', cut:'Diviser ici',
+      toastSplit:'Divisé', toastUngroup:'Les pages se déplacent maintenant une par une', toastJoin:'Joint au précédent',
+      removedCount: n => plural(n,'1 page retirée',`${n} pages retirées`), removedPageNo: n => `Page ${n} retirée`, removedFile: n => `${n} retiré`,
+      pages: n => plural(n,'1 page',`${n} pages`), pageNo: n => `p. ${n}`, sum:(p,f) => `<b>${p}</b> · ${plural(f,'1 fichier',f+' fichiers')}`,
+      lockedWarn:'Les fichiers sans mot de passe seront ignorés', defaultName:'fusion', saved: n => `${n} enregistré`, saveFail:'Échec de l’enregistrement. Vérifiez vos fichiers.'
+    },
+    de: {
+      brand:'Hapbon', sub:'PDF zusammenfügen', lead:'Ihre Dateien verlassen nie dieses Gerät', add:'Dateien hinzufügen', lang:'Sprache',
+      emptyTitle:'PDFs oder Fotos hier ablegen', emptyTitleTouch:'Tippen, um PDFs oder Fotos auszuwählen',
+      orClick:'Oder klicken zum Auswählen', formats:'PDF, Fotos (JPG, PNG, HEIC)', mix:'Alle Seiten aller Dateien beliebig anordnen',
+      hint:'Zum Umsortieren ziehen. Mehrseitige PDFs bewegen sich als Stapel; aufklappen, um Seiten zu sehen und zu teilen.',
+      hintTouch:'Gedrückt halten zum Ziehen. Mehrseitige PDFs zum Teilen aufklappen.',
+      namePh:'Dateiname', nameAria:'Dateiname', save:'PDF speichern', saving:'Wird erstellt', undo:'Rückgängig',
+      pwTitle:'Passwort eingeben', pwDesc:' ist passwortgeschützt. Geben Sie das Passwort ein, um die Datei entsperrt hinzuzufügen.', pwPh:'PDF-Passwort', later:'Später', ok:'OK',
+      pwWrong:'Falsches Passwort. Bitte erneut versuchen.', unlocked:'Entsperrt',
+      viewer:'Seitenvorschau', rotate:'Nach rechts drehen', close:'Schließen', prev:'Vorherige Seite', next:'Nächste Seite', dropHere:'Zum Hinzufügen ablegen',
+      toDark:'Zum dunklen Modus wechseln', toLight:'Zum hellen Modus wechseln', theme:'Design wechseln',
+      nothingUndo:'Nichts zum Rückgängigmachen', undone:'Rückgängig gemacht', onlyPdfImg:'Nur PDFs und Fotos möglich',
+      badPhoto: n => `${n} kann in diesem Browser nicht geöffnet werden`,
+      cantOpen:'Nicht lesbar', enterPw:'Passwort', removeFile:'Datei entfernen', andMore:(n,k) => `${n} und ${k} weitere`,
+      expand:'Seiten aufklappen', removeGroup:'Diesen Stapel entfernen', removePage:'Diese Seite entfernen',
+      jumpTitle:'Zu einer Seite in diesem Stapel', jumpLbl:'Gehe zu', jumpAria:'Seitenzahl',
+      fold:'Zuklappen', foldTitle:'Wieder stapeln', split:'Gruppierung aufheben', splitTitle:'Seiten einzeln bewegen', join:'Mit vorherigem verbinden', joinTitle:'Mit dem vorherigen Stapel zusammenführen',
+      scrollL:'Nach links scrollen', scrollR:'Nach rechts scrollen', cut:'Hier teilen',
+      toastSplit:'Geteilt', toastUngroup:'Seiten lassen sich jetzt einzeln bewegen', toastJoin:'Mit vorherigem verbunden',
+      removedCount: n => plural(n,'1 Seite entfernt',`${n} Seiten entfernt`), removedPageNo: n => `Seite ${n} entfernt`, removedFile: n => `${n} entfernt`,
+      pages: n => plural(n,'1 Seite',`${n} Seiten`), pageNo: n => `S. ${n}`, sum:(p,f) => `<b>${p}</b> · ${plural(f,'1 Datei',f+' Dateien')}`,
+      lockedWarn:'Dateien ohne Passwort werden übersprungen', defaultName:'zusammengefügt', saved: n => `${n} gespeichert`, saveFail:'Speichern fehlgeschlagen. Bitte Dateien prüfen.'
+    }
+  };
+  function pickLang(){
+    let saved = null; try { saved = localStorage.getItem('hapbon-lang'); } catch(e){}
+    if (saved && I18N[saved]) return saved;
+    for (const raw of (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en'])){
+      const l = String(raw).toLowerCase();
+      if (l.startsWith('zh')) return /tw|hk|mo|hant/.test(l) ? 'zh-TW' : 'zh-CN';
+      const base = l.split('-')[0];
+      if (I18N[base]) return base;
+    }
+    return 'en';
+  }
+  let LANG = pickLang();
+  function t(key, ...args){ const v = (I18N[LANG] && I18N[LANG][key] !== undefined) ? I18N[LANG][key] : I18N.ko[key]; return typeof v === 'function' ? v(...args) : v; }
+  const tr = t; window.__t = t;
+
   const $ = id => document.getElementById(id);
   // 라이트 / 다크 모드
   const root = document.documentElement, themeMeta = document.querySelector('meta[name="theme-color"]');
   function applyTheme(t, save){
     root.dataset.theme = t;
     themeMeta.content = t === 'dark' ? '#17171C' : '#F2F4F6';
-    $('themeBtn').title = t === 'dark' ? '라이트 모드로 바꾸기' : '다크 모드로 바꾸기';
+    $('themeBtn').title = window.__t ? window.__t(t === 'dark' ? 'toLight' : 'toDark') : '';
     if (save){ try { localStorage.setItem('hapbon-theme', t); } catch(e){} }
   }
   applyTheme(root.dataset.theme || 'light', false);
@@ -408,8 +626,8 @@
   function pushUndo(fn){ undoStack.push(fn); if (undoStack.length > 50) undoStack.shift(); }
   function undoLast(){
     const fn = undoStack.pop();
-    if (!fn){ toast('더 되돌릴 작업이 없어요'); return; }
-    fn(); toast('되돌렸어요');
+    if (!fn){ toast(t('nothingUndo')); return; }
+    fn(); toast(t('undone'));
   }
   document.addEventListener('keydown', e => {
     if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'z') return;
@@ -465,14 +683,14 @@
     for (const file of list){
       const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
       const isImg = /^image\//.test(file.type) || /\.(jpe?g|png|heic|heif|webp|gif|bmp)$/i.test(file.name);
-      if (!isPdf && !isImg){ toast('PDF나 사진만 넣을 수 있어요'); continue; }
+      if (!isPdf && !isImg){ toast(t('onlyPdfImg')); continue; }
       let bytes = new Uint8Array(await file.arrayBuffer()), mime = null;
       if (isImg){
         if (/^image\/png$/.test(file.type) || /\.png$/i.test(file.name)) mime = 'png';
         else if (/^image\/jpe?g$/.test(file.type) || /\.jpe?g$/i.test(file.name)) mime = 'jpg';
         else {
           try { bytes = await toJpeg(file); mime = 'jpg'; }
-          catch(e){ toast(file.name + '은(는) 이 브라우저에서 열 수 없는 사진이에요'); continue; }
+          catch(e){ toast(t('badPhoto', file.name)); continue; }
         }
       }
       const f = {id:++fseq, name:file.name, kind:isPdf?'pdf':'image', bytes, color:COLORS[colorIdx++ % COLORS.length], state:'ready'};
@@ -512,9 +730,9 @@
   $('pwForm').addEventListener('submit', async e => {
     e.preventDefault();
     const f = files.get(pwFid); if (!f) return closePassword();
-    try { await openPdf(f, $('pwInput').value); closePassword(); render(); toast('암호를 풀었어요'); }
+    try { await openPdf(f, $('pwInput').value); closePassword(); render(); toast(t('unlocked')); }
     catch(err){
-      if (err && err.name === 'PasswordException'){ $('pwErr').textContent = '암호가 맞지 않아요. 다시 확인해 주세요'; $('pwField').classList.add('err'); $('pwInput').select(); }
+      if (err && err.name === 'PasswordException'){ $('pwErr').textContent = t('pwWrong'); $('pwField').classList.add('err'); $('pwInput').select(); }
       else { f.state = 'error'; closePassword(); render(); }
     }
   });
@@ -623,10 +841,10 @@
     for (const f of visible){
       const ch = document.createElement('div');
       ch.className = 'chip' + (f.state==='locked' ? ' locked' : f.state==='error' ? ' error' : '');
-      const cnt = f.state==='ready' ? `${pages.filter(p=>p.fid===f.id).length}쪽` : f.state==='locked' ? '' : '열 수 없는 파일';
+      const cnt = f.state==='ready' ? t('pages', pages.filter(p=>p.fid===f.id).length) : f.state==='locked' ? '' : t('cantOpen');
       ch.innerHTML = `<span class="dot" style="background:${f.color}"></span><span class="nm"></span><span class="ct">${cnt}</span>`
-        + (f.state==='locked' ? '<button class="unlock">암호 입력</button>' : '')
-        + `<button class="x" aria-label="파일 빼기" title="파일 빼기">${ICON_X}</button>`;
+        + (f.state==='locked' ? `<button class="unlock">${t('enterPw')}</button>` : '')
+        + `<button class="x" aria-label="${t('removeFile')}" title="${t('removeFile')}">${ICON_X}</button>`;
       ch.querySelector('.nm').textContent = f.name;
       ch.querySelector('.x').onclick = () => removeFile(f.id);
       const u = ch.querySelector('.unlock'); if (u) u.onclick = () => askPassword(f.id);
@@ -650,18 +868,18 @@
         if (g.items.some(x => x.fresh)){ box.classList.add('enter'); box.style.animationDelay = Math.min(stagger++, 8) * 40 + 'ms'; }
         g.items.forEach(x => { x.fresh = false; if (!x.thumb) queueThumb(x); });
         const r = ((p.rot % 360) + 360) % 360, layers = Math.min(cnt, 3);
-        const title = fids.length === 1 ? f0.name : `${f0.name} 외 ${fids.length-1}개`;
+        const title = fids.length === 1 ? f0.name : t('andMore', f0.name, fids.length-1);
         box.innerHTML = `<div class="sheets n${layers}">
             ${layers >= 3 ? '<div class="sheet s3"></div>' : ''}${layers >= 2 ? '<div class="sheet s2"></div>' : ''}
             <div class="thumb rot${r}" data-tp="${p.pid}">${p.thumb ? `<img alt="" src="${p.thumb}" style="transform:rotate(${p.rot}deg)">` : '<div class="skeleton"></div>'}</div>
           </div>
           <div class="acts">
-            ${cnt > 1 ? `<button class="act" data-a="expand" title="쪽별로 펼치기" aria-label="쪽별로 펼치기">${ICON_EXPAND}</button>`
-                      : `<button class="act" data-a="rot" title="오른쪽으로 돌리기" aria-label="오른쪽으로 돌리기">${ICON_ROT}</button>`}
-            <button class="act del" data-a="del" title="${cnt > 1 ? '이 묶음 빼기' : '이 페이지 빼기'}" aria-label="${cnt > 1 ? '이 묶음 빼기' : '이 페이지 빼기'}">${ICON_DEL}</button>
+            ${cnt > 1 ? `<button class="act" data-a="expand" title="${t('expand')}" aria-label="${t('expand')}">${ICON_EXPAND}</button>`
+                      : `<button class="act" data-a="rot" title="${t('rotate')}" aria-label="${t('rotate')}">${ICON_ROT}</button>`}
+            <button class="act del" data-a="del" title="${t(cnt > 1 ? 'removeGroup' : 'removePage')}" aria-label="${t(cnt > 1 ? 'removeGroup' : 'removePage')}">${ICON_DEL}</button>
           </div>
           <div class="c-title hd-nm"></div>
-          <div class="c-meta"><span class="badge">${cnt > 1 ? start + '–' + n : start}</span><span class="dot" style="background:${f0.color}"></span><span class="hd-fn"></span><span class="ct">${cnt}쪽</span></div>`;
+          <div class="c-meta"><span class="badge">${cnt > 1 ? start + '–' + n : start}</span><span class="dot" style="background:${f0.color}"></span><span class="hd-fn"></span><span class="ct">${t('pages', cnt)}</span></div>`;
         box.dataset.first = p.pid; box.dataset.fallback = title; setHead(box);
         const ex = box.querySelector('[data-a=expand]'); if (ex) ex.onclick = () => {
           expanded.clear(); expanded.add(g.gid); render();   // 한 번에 하나만 펼치기
@@ -675,16 +893,16 @@
       }
       const box = document.createElement('div'); box.className = 'group'; box.dataset.gid = g.gid; tint(box, f0.color);
       if (g.items.some(p => p.fresh)){ box.classList.add('enter'); box.style.animationDelay = Math.min(stagger++, 8) * 40 + 'ms'; }
-      const title = fids.length === 1 ? f0.name : `${f0.name} 외 ${fids.length-1}개`;
-      box.innerHTML = `<div class="g-head"><span class="dot" style="background:${f0.color}"></span><span class="nm hd-nm"></span><span class="fn hd-fn"></span><span class="ct">${g.items.length}쪽</span><span class="sp"></span>
-          ${g.items.length > 8 ? `<label class="jump" title="이 묶음 안의 쪽 번호로 이동"><span class="lbl">쪽 이동</span><input type="number" min="1" max="${g.items.length}" inputmode="numeric" aria-label="이동할 쪽 번호"><span>/ ${g.items.length}</span></label>` : ''}
-          <button class="g-btn" data-a="fold" title="다시 겹쳐서 보기">접기</button>
-          ${g.items.length > 1 ? '<button class="g-btn" data-a="split" title="한 쪽씩 따로 움직이게 풀기">묶음 풀기</button>' : ''}
-          ${gi > 0 ? '<button class="g-btn" data-a="join" title="바로 앞 묶음과 합치기">앞과 묶기</button>' : ''}
-          <button class="g-btn x" data-a="rmg" title="이 묶음 빼기" aria-label="이 묶음 빼기">${ICON_DEL}</button></div>
+      const title = fids.length === 1 ? f0.name : t('andMore', f0.name, fids.length-1);
+      box.innerHTML = `<div class="g-head"><span class="dot" style="background:${f0.color}"></span><span class="nm hd-nm"></span><span class="fn hd-fn"></span><span class="ct">${t('pages', g.items.length)}</span><span class="sp"></span>
+          ${g.items.length > 8 ? `<label class="jump" title="${t('jumpTitle')}"><span class="lbl">${t('jumpLbl')}</span><input type="number" min="1" max="${g.items.length}" inputmode="numeric" aria-label="${t('jumpAria')}"><span>/ ${g.items.length}</span></label>` : ''}
+          <button class="g-btn" data-a="fold" title="${t('foldTitle')}">${t('fold')}</button>
+          ${g.items.length > 1 ? `<button class="g-btn" data-a="split" title="${t('splitTitle')}">${t('split')}</button>` : ''}
+          ${gi > 0 ? `<button class="g-btn" data-a="join" title="${t('joinTitle')}">${t('join')}</button>` : ''}
+          <button class="g-btn x" data-a="rmg" title="${t('removeGroup')}" aria-label="${t('removeGroup')}">${ICON_DEL}</button></div>
         <div class="g-wrap"><div class="fade l"></div><div class="fade r"></div>
-          <button class="scroll-btn l" aria-label="왼쪽으로 넘기기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
-          <button class="scroll-btn r" aria-label="오른쪽으로 넘기기"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+          <button class="scroll-btn l" aria-label="${t('scrollL')}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button class="scroll-btn r" aria-label="${t('scrollR')}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
           <div class="g-body"></div></div>
         <div class="track" hidden><div class="thumbbar"></div></div>`;
       box.dataset.first = g.items[0].pid; box.dataset.fallback = title;
@@ -699,14 +917,14 @@
         const f = files.get(p.fid);
         const el = document.createElement('div'); el.className = 'page'; el.dataset.pid = p.pid; p.fresh = false;
         const r = ((p.rot % 360) + 360) % 360;
-        el.innerHTML = `${k > 0 ? `<button class="cut" title="여기서 나누기" aria-label="여기서 나누기">${ICON_CUT}</button>` : ''}
+        el.innerHTML = `${k > 0 ? `<button class="cut" title="${t('cut')}" aria-label="${t('cut')}">${ICON_CUT}</button>` : ''}
           <div class="thumb rot${r}" data-tp="${p.pid}">${p.thumb ? `<img alt="" src="${p.thumb}" style="transform:rotate(${p.rot}deg)">` : '<div class="skeleton"></div>'}</div>
           <div class="acts">
-            <button class="act" data-a="rot" title="오른쪽으로 돌리기" aria-label="오른쪽으로 돌리기">${ICON_ROT}</button>
-            <button class="act del" data-a="del" title="이 페이지 빼기" aria-label="이 페이지 빼기">${ICON_DEL}</button>
+            <button class="act" data-a="rot" title="${t('rotate')}" aria-label="${t('rotate')}">${ICON_ROT}</button>
+            <button class="act del" data-a="del" title="${t('removePage')}" aria-label="${t('removePage')}">${ICON_DEL}</button>
           </div>
-          <div class="cap"><span class="badge">${n}</span><span class="nm">${f.numPages>1 ? (p.index+1)+'쪽' : ''}</span></div>`;
-        if (fids.length > 1) el.querySelector('.cap .nm').textContent = f.name.replace(/\.[^.]+$/, '') + (f.numPages>1 ? ' · ' + (p.index+1) + '쪽' : '');
+          <div class="cap"><span class="badge">${n}</span><span class="nm">${f.numPages>1 ? t('pageNo', p.index+1) : ''}</span></div>`;
+        if (fids.length > 1) el.querySelector('.cap .nm').textContent = f.name.replace(/\.[^.]+$/, '') + (f.numPages>1 ? ' · ' + t('pageNo', p.index+1) : '');
         el.querySelector('[data-a=rot]').onclick = () => rotate(p.pid);
         el.querySelector('[data-a=del]').onclick = () => removePage(p.pid);
         el.querySelector('.thumb').onclick = () => openViewer(p.pid);
@@ -788,12 +1006,12 @@
     const i = pages.findIndex(x => x.pid === pid), gid = pages[i].gid, ng = ++gseq;
     for (let k = i; k < pages.length && pages[k].gid === gid; k++) pages[k].gid = ng;
     if (expanded.has(gid)) expanded.add(ng);
-    render(); toast('묶음을 나눴어요', () => restore(snap));
+    render(); toast(t('toastSplit'), () => restore(snap));
   }
   function ungroup(gid){
     const snap = snapshot();
     pages.forEach(p => { if (p.gid === gid) p.gid = ++gseq; });
-    render(); toast('한 쪽씩 따로 움직일 수 있어요', () => restore(snap));
+    render(); toast(t('toastUngroup'), () => restore(snap));
   }
   function joinPrev(gid){
     const snap = snapshot();
@@ -801,20 +1019,20 @@
     const prev = pages[i-1].gid;
     pages.forEach(p => { if (p.gid === gid) p.gid = prev; });
     if (expanded.has(gid)) expanded.add(prev);
-    render(); toast('앞 묶음과 합쳤어요', () => restore(snap));
+    render(); toast(t('toastJoin'), () => restore(snap));
   }
   function removeGroup(gid){
     const snap = snapshot();
     const cnt = pages.filter(p => p.gid === gid).length;
     pages = pages.filter(p => p.gid !== gid);
-    render(); removedCleanup(); toast(`${cnt}쪽을 뺐어요`, () => restore(snap));
+    render(); removedCleanup(); toast(t('removedCount', cnt), () => restore(snap));
   }
 
   function updateBar(){
     const ready = [...files.values()].filter(f => !f.removed && f.state==='ready' && pages.some(p => p.fid === f.id)).length;
-    $('sum').innerHTML = `<b>${pages.length}쪽</b> · 파일 ${ready}개`;
+    $('sum').innerHTML = t('sum', t('pages', pages.length), ready);
     const locked = [...files.values()].some(f => !f.removed && f.state==='locked');
-    $('warn').hidden = !locked; $('warn').textContent = locked ? '암호를 입력하지 않은 파일은 빠져요' : '';
+    $('warn').hidden = !locked; $('warn').textContent = locked ? t('lockedWarn') : '';
     if (!busy) $('saveBtn').disabled = pages.length === 0;
   }
 
@@ -833,14 +1051,14 @@
     const snap = snapshot();
     const i = pages.findIndex(x=>x.pid===pid); pages.splice(i,1);
     render(); removedCleanup();
-    toast(`${i+1}쪽을 뺐어요`, () => restore(snap));
+    toast(t('removedPageNo', i+1), () => restore(snap));
   }
   function removeFile(fid){
     const f = files.get(fid);
     const snap = snapshot();
     pages = pages.filter(p=>p.fid!==fid); f.removed = true;
     render(); removedCleanup();
-    toast(`${f.name}을(를) 뺐어요`, () => { f.removed = false; restore(snap); });
+    toast(t('removedFile', f.name), () => { f.removed = false; restore(snap); });
   }
 
   /* ---------- viewer ---------- */
@@ -865,7 +1083,7 @@
     const p = pages[i], f = files.get(p.fid);
     $('vNum').textContent = `${i+1} / ${pages.length}`;
     const gFirst = pages.find(x => x.gid === p.gid);
-    $('vName').textContent = (gFirst && gFirst.title ? gFirst.title + ' · ' : '') + f.name + (f.numPages > 1 ? ` · ${p.index+1}쪽` : '');
+    $('vName').textContent = (gFirst && gFirst.title ? gFirst.title + ' · ' : '') + f.name + (f.numPages > 1 ? ' · ' + t('pageNo', p.index+1) : '');
     $('vPrev').disabled = i === 0; $('vNext').disabled = i === pages.length - 1;
     const stage = $('vStage');
     const fit = () => { const im = stage.querySelector('img'); if (!im) return;
@@ -964,20 +1182,20 @@
   $('saveBtn').addEventListener('click', async () => {
     if (busy || !pages.length) return;
     busy = true; const btn = $('saveBtn'); btn.disabled = true;
-    btn.innerHTML = '<span class="spin"></span><span id="prog">만드는 중</span>';
+    btn.innerHTML = `<span class="spin"></span><span id="prog">${t('saving')}</span>`;
     try {
-      const bytes = await build((i,t) => { const el = $('prog'); if (el) el.textContent = `${i}/${t}쪽`; });
+      const bytes = await build((i,t) => { const el = $('prog'); if (el) el.textContent = `${i} / ${t}`; });
       const d = new Date(), pad = x => String(x).padStart(2,'0');
       const today = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-      let name = ($('outname').value.trim().replace(/\.pdf$/i,'').replace(/[\\/:*?"<>|]/g,'_') || `합본_${today}`) + '.pdf';
+      let name = ($('outname').value.trim().replace(/\.pdf$/i,'').replace(/[\\/:*?"<>|]/g,'_') || `${tr('defaultName')}_${today}`) + '.pdf';
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([bytes], {type:'application/pdf'})); a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 60000);
       window.__lastBytes = bytes;
-      toast(`${name}을(를) 저장했어요`);
-    } catch(e){ console.error(e); toast('저장하지 못했어요. 파일을 다시 확인해 주세요'); }
-    busy = false; btn.textContent = 'PDF로 저장'; updateBar();
+      toast(tr('saved', name));
+    } catch(e){ console.error(e); toast(tr('saveFail')); }
+    busy = false; btn.textContent = tr('save'); updateBar();
   });
 
   /* ---------- input ---------- */
@@ -994,12 +1212,29 @@
   window.addEventListener('drop', e => { if (!isFiles(e)) return; e.preventDefault(); dragDepth=0; $('dropOv').classList.remove('show'); addFiles([...e.dataTransfer.files]); });
 
   // test hooks
-  window.__app = { addFiles, get pages(){ return pages; }, files, move(from,to){ const [p]=pages.splice(from,1); pages.splice(to,0,p); render(); } };
-  if (matchMedia('(hover:none)').matches){
-    $('hint').textContent = '꾹 눌러서 끌면 순서가 바뀌어요. 여러 쪽짜리는 펼쳐서 쪽별로 나눌 수 있어요.';
-    $('emptyTitle').textContent = '눌러서 PDF나 사진을 골라 주세요';
-    document.querySelector('.empty p').innerHTML = 'PDF, 사진(JPG, PNG, HEIC)<br>넣은 파일의 모든 페이지를 원하는 순서로 섞을 수 있어요';
+  /* ---------- 언어 적용 ---------- */
+  const IS_TOUCH = matchMedia('(hover:none)').matches;
+  function applyLang(l, save){
+    LANG = I18N[l] ? l : 'en';
+    document.documentElement.lang = LANG;
+    document.title = `${t('brand')} - ${t('sub')}`;
+    document.querySelectorAll('[data-i18n]').forEach(el => { if (el.id === 'saveBtn' && busy) return; el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => el.placeholder = t(el.dataset.i18nPh));
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
+    document.querySelectorAll('[data-i18n-title]').forEach(el => { const [k, suf] = el.dataset.i18nTitle.split('|'); el.title = t(k) + (suf ? ' ' + suf : ''); });
+    $('emptyTitle').textContent = t(IS_TOUCH ? 'emptyTitleTouch' : 'emptyTitle');
+    document.querySelector('.empty p').innerHTML = (IS_TOUCH ? '' : t('orClick') + ' · ') + t('formats') + '<br>' + t('mix');
+    $('hint').textContent = t(IS_TOUCH ? 'hintTouch' : 'hint');
+    applyTheme(root.dataset.theme || 'light', false);
+    $('langSel').value = LANG;
+    if (save){ try { localStorage.setItem('hapbon-lang', LANG); } catch(e){} }
+    render();
   }
+  $('langSel').innerHTML = LANGS.map(([code, name]) => `<option value="${code}">${name}</option>`).join('');
+  $('langSel').addEventListener('change', e => applyLang(e.target.value, true));
+  applyLang(LANG, false);
+
+  window.__app = { addFiles, get pages(){ return pages; }, files, move(from,to){ const [p]=pages.splice(from,1); pages.splice(to,0,p); render(); } };
   window.__app.openViewer = openViewer;
   render();
 })();
