@@ -11,6 +11,15 @@
     document.documentElement.dataset.theme = t; })();
 </script>
 <title>합본 - PDF 합치기</title>
+<meta name="description" content="PDF와 사진을 원하는 순서로 한 파일로 합쳐요. 업로드 없이 내 기기 안에서만 처리해요.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="합본 - PDF 합치기">
+<meta property="og:description" content="PDF와 사진을 원하는 순서로 한 파일로. 업로드 없이 내 기기 안에서만, 설치 없이 무료로.">
+<meta property="og:url" content="https://iimmuunnee.github.io/hapbon/">
+<meta property="og:image" content="https://iimmuunnee.github.io/hapbon/docs/images/social.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='9' y='4' width='18' height='23' rx='3' fill='%23B9D7FC'/%3E%3Crect x='5' y='7' width='18' height='23' rx='3' fill='%233182F6'/%3E%3Cpath d='M10 14h8M10 19h8M10 24h5' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
   :root{
