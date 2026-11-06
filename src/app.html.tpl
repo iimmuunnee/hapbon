@@ -52,9 +52,24 @@
 
   /* page grid */
   .hint{font-size:13px;color:var(--muted);margin:0 0 12px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(156px,1fr));gap:16px}
-  .page{background:var(--card);border-radius:var(--radius);padding:10px;position:relative;cursor:grab;user-select:none;transition:box-shadow .2s var(--ease)}
-  .page:hover{box-shadow:0 4px 16px rgba(0,27,55,.08)}
+  .grid{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+  .group{background:var(--card);border-radius:20px;padding:12px;cursor:grab;user-select:none;max-width:100%;transition:box-shadow .2s var(--ease)}
+  .group:hover{box-shadow:0 4px 16px rgba(0,27,55,.08)}
+  .group.enter{animation:enter .35s var(--ease) both}
+  .g-head{display:flex;align-items:center;gap:8px;height:28px;margin:0 2px 10px;font-size:13px;color:var(--sub)}
+  .g-head .dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .g-head .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;font-weight:600;color:var(--ink)}
+  .g-head .ct{color:var(--muted);flex:none}
+  .g-head .sp{flex:1}
+  .g-btn{height:28px;padding:0 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--sub);background:var(--fill);flex:none;opacity:0;transition:opacity .15s var(--ease),background .15s var(--ease)}
+  .g-btn:hover{background:var(--line);color:var(--ink)}
+  .g-btn.x{width:28px;padding:0;display:grid;place-items:center}
+  .group:hover .g-btn,.group:focus-within .g-btn{opacity:1}
+  .g-body{display:flex;flex-wrap:wrap;gap:14px}
+  .page{width:150px;position:relative;flex:none}
+  .cut{position:absolute;left:-14px;top:calc(50% - 24px);width:24px;height:24px;margin-left:-7px;border-radius:50%;background:#fff;color:var(--sub);box-shadow:0 1px 4px rgba(0,27,55,.18);display:grid;place-items:center;opacity:0;transform:scale(.8);transition:opacity .15s var(--ease),transform .15s var(--ease),color .15s;z-index:2}
+  .group:hover .cut{opacity:1;transform:none}
+  .cut:hover{color:var(--primary)}
   .page.enter{animation:enter .35s var(--ease) both}
   @keyframes enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   .thumb{aspect-ratio:1/1.414;border-radius:10px;background:var(--fill);display:grid;place-items:center;overflow:hidden}
@@ -63,12 +78,12 @@
   .skeleton{width:100%;height:100%;background:linear-gradient(90deg,#EEF0F3 25%,#F7F8FA 50%,#EEF0F3 75%);background-size:200% 100%;animation:shimmer 1.2s linear infinite}
   @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
   .badge{min-width:24px;height:22px;padding:0 7px;border-radius:999px;background:var(--ink);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;flex:none}
-  .acts{position:absolute;top:14px;right:14px;display:flex;gap:4px;opacity:0;transition:opacity .15s var(--ease)}
+  .acts{position:absolute;top:6px;right:6px;display:flex;gap:4px;opacity:0;transition:opacity .15s var(--ease)}
   .page:hover .acts,.page:focus-within .acts{opacity:1}
   .act{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.95);box-shadow:0 1px 4px rgba(0,27,55,.12);display:grid;place-items:center;color:var(--sub)}
   .act:hover{color:var(--ink)}
   .act.del:hover{color:var(--danger)}
-  .cap{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--muted);padding:0 2px}
+  .cap{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--muted);padding:0 2px}
   .cap .dot{width:6px;height:6px;border-radius:50%;flex:none}
   .cap .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
   .ghost{opacity:.35}
@@ -83,6 +98,7 @@
   .name{flex:1;display:flex;align-items:center;height:44px;background:var(--fill);border-radius:12px;padding:0 14px;border:1px solid transparent}
   .name:focus-within{border-color:var(--primary);background:#fff}
   .name input{flex:1;border:0;background:none;font:inherit;font-size:15px;outline:none;min-width:0;color:var(--ink)}
+  .name input::placeholder{color:#B0B8C1}
   .name span{color:var(--muted);font-size:15px}
   .warn{font-size:13px;color:#B25E09}
   .spin{width:18px;height:18px;border-radius:50%;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;animation:spin .7s linear infinite}
@@ -135,7 +151,12 @@
     h1{font-size:22px}
     .lead{font-size:13px}
     .btn-secondary{height:40px;padding:0 14px;font-size:14px}
-    .grid{grid-template-columns:repeat(2,1fr);gap:12px}
+    .grid{gap:12px}
+    .group{width:100%;padding:10px}
+    .g-body{gap:10px}
+    .page{width:calc(50% - 5px)}
+    .cut{left:-5px;margin-left:-12px}
+    .g-head .nm{max-width:40vw}
     .bar .in{flex-wrap:wrap;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
     .sum{order:0;flex:1}
     .warn{order:1;width:100%}
@@ -146,7 +167,9 @@
     .v-body .v-btn{display:none}
   }
   /* 터치 기기: 버튼 항상 보이기 */
-  @media (hover:none){ .acts{opacity:1} .page:hover{box-shadow:none} .empty:hover{border-color:transparent} }
+  @media (hover:none){ .acts,.g-btn,.cut{opacity:1;transform:none} .group:hover{box-shadow:none} .empty:hover{border-color:transparent} }
+  footer{margin-top:48px;text-align:center;font-size:12px;color:var(--muted);letter-spacing:0}
+  footer b{font-weight:600;color:var(--sub)}
   @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
 </style>
 </head>
@@ -174,15 +197,16 @@
 
   <section id="work" hidden>
     <div class="files" id="files"></div>
-    <p class="hint" id="hint">페이지를 끌어서 순서를 바꾸세요. 누르면 크게 볼 수 있어요.</p>
+    <p class="hint" id="hint">같은 파일의 페이지는 묶여서 함께 움직여요. 페이지 사이 가위로 나눌 수 있고, 누르면 크게 볼 수 있어요.</p>
     <div class="grid" id="grid"></div>
   </section>
+  <footer>Created by <b>임휘훈</b></footer>
 </div>
 
 <div class="bar" id="bar">
   <div class="in">
     <div class="sum" id="sum"></div>
-    <label class="name"><input id="outname" value="합본" aria-label="저장할 파일 이름" spellcheck="false"><span>.pdf</span></label>
+    <label class="name"><input id="outname" value="" placeholder="합본 이름 적기" aria-label="합본 파일 이름" spellcheck="false" autocomplete="off"><span>.pdf</span></label>
     <span class="warn" id="warn" hidden></span>
     <button class="btn btn-primary" id="saveBtn">PDF로 저장</button>
   </div>
@@ -232,7 +256,7 @@
   const COLORS = ['#3182F6','#00B386','#FF8A00','#8B5CF6','#06B6D4','#F25291'];
   const files = new Map();   // fid -> {id,name,kind,bytes,mime,color,state:'ready'|'locked'|'error',raster,doc,numPages}
   let pages = [];            // {pid,fid,index,rot,thumb}
-  let fseq = 0, pseq = 0, colorIdx = 0, busy = false;
+  let fseq = 0, pseq = 0, gseq = 0, colorIdx = 0, busy = false;
   const pwQueue = [];
 
   const ICON_ROT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>';
@@ -255,7 +279,8 @@
     f.doc = doc; f.numPages = doc.numPages; f.state = 'ready';
     try { await PDFLib.PDFDocument.load(f.bytes); f.raster = false; } catch(e){ f.raster = true; }
     const added = [];
-    for (let i=0;i<doc.numPages;i++){ const p = {pid:++pseq, fid:f.id, index:i, rot:0, thumb:null, fresh:true}; pages.push(p); added.push(p); }
+    const gid = ++gseq;
+    for (let i=0;i<doc.numPages;i++){ const p = {pid:++pseq, gid, fid:f.id, index:i, rot:0, thumb:null, fresh:true}; pages.push(p); added.push(p); }
     return added;
   }
 
@@ -290,7 +315,7 @@
       if (isImg){
         f.mime = mime;
         f.numPages = 1;
-        const p = {pid:++pseq, fid:f.id, index:0, rot:0, thumb:URL.createObjectURL(new Blob([f.bytes],{type:'image/'+(f.mime==='png'?'png':'jpeg')})), fresh:true};
+        const p = {pid:++pseq, gid:++gseq, fid:f.id, index:0, rot:0, thumb:URL.createObjectURL(new Blob([f.bytes],{type:'image/'+(f.mime==='png'?'png':'jpeg')})), fresh:true};
         pages.push(p);
       } else {
         try { await openPdf(f); }
@@ -375,32 +400,81 @@
       fc.appendChild(ch);
     }
 
-    // pages
+    // groups (연속된 같은 gid = 한 묶음)
     const grid = $('grid'); grid.innerHTML = '';
-    let stagger = 0;
-    pages.forEach((p, i) => {
-      const f = files.get(p.fid);
-      const el = document.createElement('div');
-      el.className = 'page' + (p.fresh ? ' enter' : ''); el.dataset.pid = p.pid;
-      if (p.fresh){ el.style.animationDelay = Math.min(stagger++, 12) * 30 + 'ms'; p.fresh = false; }
-      const r = ((p.rot % 360) + 360) % 360;
-      el.innerHTML = `<div class="thumb rot${r}">${p.thumb ? `<img alt="" src="${p.thumb}" style="transform:rotate(${p.rot}deg)">` : '<div class="skeleton"></div>'}</div>
-        <div class="acts">
-          <button class="act" data-a="rot" title="오른쪽으로 돌리기" aria-label="오른쪽으로 돌리기">${ICON_ROT}</button>
-          <button class="act del" data-a="del" title="이 페이지 빼기" aria-label="이 페이지 빼기">${ICON_DEL}</button>
-        </div>
-        <div class="cap"><span class="badge">${i+1}</span><span class="dot" style="background:${f.color}"></span><span class="nm"></span><span>${f.numPages>1 ? (p.index+1)+'쪽' : ''}</span></div>`;
-      el.querySelector('.cap .nm').textContent = f.name.replace(/\.[^.]+$/, '');
-      el.querySelector('[data-a=rot]').onclick = () => rotate(p.pid);
-      el.querySelector('[data-a=del]').onclick = () => removePage(p.pid);
-      el.querySelector('.thumb').onclick = () => openViewer(p.pid);
-      grid.appendChild(el);
-      if (!p.thumb) queueThumb(p);
+    const groups = [];
+    pages.forEach(p => { const g = groups[groups.length-1]; if (g && g.gid === p.gid) g.items.push(p); else groups.push({gid:p.gid, items:[p]}); });
+    let n = 0, stagger = 0;
+    groups.forEach((g, gi) => {
+      const fids = [...new Set(g.items.map(p => p.fid))];
+      const f0 = files.get(fids[0]);
+      const box = document.createElement('div'); box.className = 'group'; box.dataset.gid = g.gid;
+      if (g.items.some(p => p.fresh)){ box.classList.add('enter'); box.style.animationDelay = Math.min(stagger++, 8) * 40 + 'ms'; }
+      const title = fids.length === 1 ? f0.name : `${f0.name} 외 ${fids.length-1}개`;
+      box.innerHTML = `<div class="g-head"><span class="dot" style="background:${f0.color}"></span><span class="nm"></span><span class="ct">${g.items.length}쪽</span><span class="sp"></span>
+          ${g.items.length > 1 ? '<button class="g-btn" data-a="split" title="한 쪽씩 따로 움직이게 풀기">묶음 풀기</button>' : ''}
+          ${gi > 0 ? '<button class="g-btn" data-a="join" title="바로 앞 묶음과 합치기">앞과 묶기</button>' : ''}
+          <button class="g-btn x" data-a="rmg" title="이 묶음 빼기" aria-label="이 묶음 빼기">${ICON_X}</button></div>
+        <div class="g-body"></div>`;
+      box.querySelector('.nm').textContent = title;
+      const sb = box.querySelector('[data-a=split]'); if (sb) sb.onclick = () => ungroup(g.gid);
+      const jb = box.querySelector('[data-a=join]'); if (jb) jb.onclick = () => joinPrev(g.gid);
+      box.querySelector('[data-a=rmg]').onclick = () => removeGroup(g.gid);
+      const body = box.querySelector('.g-body');
+      g.items.forEach((p, k) => {
+        n++;
+        const f = files.get(p.fid);
+        const el = document.createElement('div'); el.className = 'page'; el.dataset.pid = p.pid; p.fresh = false;
+        const r = ((p.rot % 360) + 360) % 360;
+        el.innerHTML = `${k > 0 ? `<button class="cut" title="여기서 나누기" aria-label="여기서 나누기">${ICON_CUT}</button>` : ''}
+          <div class="thumb rot${r}">${p.thumb ? `<img alt="" src="${p.thumb}" style="transform:rotate(${p.rot}deg)">` : '<div class="skeleton"></div>'}</div>
+          <div class="acts">
+            <button class="act" data-a="rot" title="오른쪽으로 돌리기" aria-label="오른쪽으로 돌리기">${ICON_ROT}</button>
+            <button class="act del" data-a="del" title="이 페이지 빼기" aria-label="이 페이지 빼기">${ICON_DEL}</button>
+          </div>
+          <div class="cap"><span class="badge">${n}</span><span class="nm">${f.numPages>1 ? (p.index+1)+'쪽' : ''}</span></div>`;
+        if (fids.length > 1) el.querySelector('.cap .nm').textContent = f.name.replace(/\.[^.]+$/, '') + (f.numPages>1 ? ' · ' + (p.index+1) + '쪽' : '');
+        el.querySelector('[data-a=rot]').onclick = () => rotate(p.pid);
+        el.querySelector('[data-a=del]').onclick = () => removePage(p.pid);
+        el.querySelector('.thumb').onclick = () => openViewer(p.pid);
+        const cut = el.querySelector('.cut'); if (cut) cut.onclick = () => splitAt(p.pid);
+        body.appendChild(el);
+        if (!p.thumb) queueThumb(p);
+      });
+      grid.appendChild(box);
     });
     updateBar();
   }
 
-  function renumber(){ document.querySelectorAll('#grid .page').forEach((el,i) => el.querySelector('.badge').textContent = i+1); }
+  const ICON_CUT = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12"/></svg>';
+
+  /* ---------- 묶음 ---------- */
+  function snapshot(){ return pages.map(p => ({...p})); }
+  function restore(snap){ pages = snap.map(p => ({...p, fresh:false})); render(); }
+  function splitAt(pid){
+    const snap = snapshot();
+    const i = pages.findIndex(x => x.pid === pid), gid = pages[i].gid, ng = ++gseq;
+    for (let k = i; k < pages.length && pages[k].gid === gid; k++) pages[k].gid = ng;
+    render(); toast('묶음을 나눴어요', () => restore(snap));
+  }
+  function ungroup(gid){
+    const snap = snapshot();
+    pages.forEach(p => { if (p.gid === gid) p.gid = ++gseq; });
+    render(); toast('한 쪽씩 따로 움직일 수 있어요', () => restore(snap));
+  }
+  function joinPrev(gid){
+    const snap = snapshot();
+    const i = pages.findIndex(x => x.gid === gid); if (i <= 0) return;
+    const prev = pages[i-1].gid;
+    pages.forEach(p => { if (p.gid === gid) p.gid = prev; });
+    render(); toast('앞 묶음과 합쳤어요', () => restore(snap));
+  }
+  function removeGroup(gid){
+    const snap = snapshot();
+    const cnt = pages.filter(p => p.gid === gid).length;
+    pages = pages.filter(p => p.gid !== gid);
+    render(); removedCleanup(); toast(`${cnt}쪽을 뺐어요`, () => restore(snap));
+  }
 
   function updateBar(){
     const ready = [...files.values()].filter(f=>f.state==='ready').length;
@@ -419,9 +493,10 @@
     if (vPid === pid) showViewer();
   }
   function removePage(pid){
-    const i = pages.findIndex(x=>x.pid===pid); const [p] = pages.splice(i,1);
+    const snap = snapshot();
+    const i = pages.findIndex(x=>x.pid===pid); pages.splice(i,1);
     render(); removedCleanup();
-    toast(`${i+1}쪽을 뺐어요`, () => { pages.splice(Math.min(i,pages.length),0,p); render(); });
+    toast(`${i+1}쪽을 뺐어요`, () => restore(snap));
   }
   function removeFile(fid){
     const f = files.get(fid);
@@ -494,11 +569,12 @@
   new Sortable($('grid'), {
     animation: 220, easing: 'cubic-bezier(.2,.8,.2,1)',
     delay: 200, delayOnTouchOnly: true, touchStartThreshold: 6,
-    ghostClass: 'ghost', chosenClass: 'chosen', filter: '.act', preventOnFilter: false,
+    ghostClass: 'ghost', chosenClass: 'chosen', filter: '.act,.g-btn,.cut', preventOnFilter: false,
     onEnd(){
-      const order = [...$('grid').children].map(el => +el.dataset.pid);
-      pages.sort((a,b) => order.indexOf(a.pid) - order.indexOf(b.pid));
-      renumber();
+      const order = [...$('grid').children].map(el => +el.dataset.gid);
+      const idx = new Map(pages.map((p,i) => [p.pid, i]));
+      pages.sort((a,b) => (order.indexOf(a.gid) - order.indexOf(b.gid)) || (idx.get(a.pid) - idx.get(b.pid)));
+      render();
     }
   });
 
@@ -549,7 +625,9 @@
     btn.innerHTML = '<span class="spin"></span><span id="prog">만드는 중</span>';
     try {
       const bytes = await build((i,t) => { const el = $('prog'); if (el) el.textContent = `${i}/${t}쪽`; });
-      let name = ($('outname').value.trim() || '합본').replace(/\.pdf$/i,'') + '.pdf';
+      const d = new Date(), pad = x => String(x).padStart(2,'0');
+      const today = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      let name = ($('outname').value.trim().replace(/\.pdf$/i,'').replace(/[\\/:*?"<>|]/g,'_') || `합본_${today}`) + '.pdf';
       const a = document.createElement('a');
       a.href = URL.createObjectURL(new Blob([bytes], {type:'application/pdf'})); a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
@@ -576,7 +654,7 @@
   // test hooks
   window.__app = { addFiles, get pages(){ return pages; }, files, move(from,to){ const [p]=pages.splice(from,1); pages.splice(to,0,p); render(); } };
   if (matchMedia('(hover:none)').matches){
-    $('hint').textContent = '페이지를 꾹 눌러서 끌면 순서가 바뀌어요. 누르면 크게 볼 수 있어요.';
+    $('hint').textContent = '꾹 눌러서 끌면 묶음째 움직여요. 가위로 나눌 수 있고, 누르면 크게 볼 수 있어요.';
     $('emptyTitle').textContent = '눌러서 PDF나 사진을 골라 주세요';
     document.querySelector('.empty p').innerHTML = 'PDF, 사진(JPG, PNG, HEIC)<br>넣은 파일의 모든 페이지를 원하는 순서로 섞을 수 있어요';
   }
