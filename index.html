@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F2F4F6">
-<title>PDF 합치기</title>
+<title>합본 - PDF 합치기</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='9' y='4' width='18' height='23' rx='3' fill='%23B9D7FC'/%3E%3Crect x='5' y='7' width='18' height='23' rx='3' fill='%233182F6'/%3E%3Cpath d='M10 14h8M10 19h8M10 24h5' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#F2F4F6; --card:#FFFFFF; --ink:#191F28; --sub:#4E5968; --muted:#8B95A1; --line:#E5E8EB; --fill:#F9FAFB;
@@ -20,7 +21,8 @@
 
   /* header */
   header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:24px}
-  h1{font-size:26px;font-weight:700;margin:0 0 6px}
+  h1{font-size:26px;font-weight:700;margin:0 0 6px;display:flex;align-items:baseline;gap:10px}
+  .h1-sub{font-size:15px;font-weight:600;color:var(--muted)}
   .lead{margin:0;color:var(--sub);font-size:15px;display:flex;align-items:center;gap:6px}
   .lead svg{color:var(--primary);flex:none}
   .btn{height:44px;padding:0 18px;border-radius:12px;font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:background .15s var(--ease),transform .1s var(--ease)}
@@ -234,7 +236,7 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>PDF 합치기</h1>
+      <h1>합본 <span class="h1-sub">PDF 합치기</span></h1>
       <p class="lead">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
         파일은 이 컴퓨터 밖으로 나가지 않아요

@@ -1,7 +1,7 @@
 {
-  "name": "pdf-merge",
+  "name": "hapbon",
   "version": "1.0.0",
-  "description": "브라우저에서만 동작하는 PDF 합치기 도구 - 파일이 기기 밖으로 나가지 않아요",
+  "description": "합본 - PDF와 사진을 한 파일로, 내 기기 안에서만",
   "private": true,
   "scripts": {
     "build": "python3 scripts/build.py src/app.html.tpl index.html"
