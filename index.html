@@ -52,7 +52,7 @@
 
   /* page grid */
   .hint{font-size:13px;color:var(--muted);margin:0 0 12px}
-  .grid{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+  .grid{position:relative;z-index:0;isolation:isolate;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
   .group{background:var(--card);border-radius:20px;padding:12px;cursor:grab;user-select:none;max-width:100%;transition:box-shadow .2s var(--ease)}
   .group:hover{box-shadow:0 4px 16px rgba(0,27,55,.08)}
   .group.enter{animation:enter .35s var(--ease) both}
@@ -136,7 +136,7 @@
   .chosen{box-shadow:0 12px 32px rgba(0,27,55,.18)!important}
 
   /* bottom bar */
-  .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);border-top:1px solid var(--line);transform:translateY(100%);transition:transform .3s var(--ease)}
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:rgba(255,255,255,.96);border-top:1px solid var(--line);transform:translateY(100%);transition:transform .3s var(--ease)}
   .bar.show{transform:none}
   .bar .in{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:12px}
   .sum{font-size:14px;color:var(--sub);flex:none}
@@ -151,12 +151,12 @@
   @keyframes spin{to{transform:rotate(360deg)}}
 
   /* toast */
-  .toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#333D4B;color:#fff;border-radius:999px;padding:12px 20px;font-size:14px;display:flex;align-items:center;gap:14px;transition:opacity .2s var(--ease),transform .2s var(--ease);white-space:nowrap}
+  .toast{position:fixed;z-index:30;left:50%;bottom:96px;transform:translate(-50%,12px);opacity:0;pointer-events:none;background:#333D4B;color:#fff;border-radius:999px;padding:12px 20px;font-size:14px;display:flex;align-items:center;gap:14px;transition:opacity .2s var(--ease),transform .2s var(--ease);white-space:nowrap}
   .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
   .toast button{color:#64A8FF;font-weight:600}
 
   /* modal */
-  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s var(--ease)}
+  .scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.4);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s var(--ease)}
   .scrim.show{opacity:1;pointer-events:auto}
   .modal{background:#fff;border-radius:24px;width:min(400px,calc(100% - 40px));padding:28px 24px 20px;transform:scale(.96);transition:transform .2s var(--ease)}
   .scrim.show .modal{transform:none}
@@ -173,7 +173,7 @@
   .btn-ghost:hover{background:var(--line)}
 
   /* window drop overlay */
-  .drop-ov{position:fixed;inset:12px;border-radius:24px;border:2px dashed var(--primary);background:rgba(232,243,255,.85);display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--primary);opacity:0;pointer-events:none;transition:opacity .15s var(--ease)}
+  .drop-ov{position:fixed;inset:12px;z-index:50;border-radius:24px;border:2px dashed var(--primary);background:rgba(232,243,255,.85);display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--primary);opacity:0;pointer-events:none;transition:opacity .15s var(--ease)}
   .drop-ov.show{opacity:1}
   /* viewer */
   .viewer{position:fixed;inset:0;background:rgba(15,19,25,.92);display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .2s var(--ease);z-index:20}
@@ -391,11 +391,29 @@
   const ICON_DEL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
   const ICON_X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
+  /* ---------- 되돌리기 기록 (Ctrl+Z / ⌘+Z) ---------- */
+  const undoStack = [];
+  function pushUndo(fn){ undoStack.push(fn); if (undoStack.length > 50) undoStack.shift(); }
+  function undoLast(){
+    const fn = undoStack.pop();
+    if (!fn){ toast('더 되돌릴 작업이 없어요'); return; }
+    fn(); toast('되돌렸어요');
+  }
+  document.addEventListener('keydown', e => {
+    if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.altKey || e.key.toLowerCase() !== 'z') return;
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;   // 글자 입력 중엔 기본 동작
+    if ($('scrim').classList.contains('show')) return;
+    e.preventDefault(); undoLast();
+  });
+
   /* ---------- toast ---------- */
   let toastTimer;
   function toast(msg, action){
     $('toastMsg').textContent = msg;
-    const b = $('toastAct'); b.hidden = !action; b.onclick = action ? () => { action(); hideToast(); } : null;
+    if (action) pushUndo(action);
+    const b = $('toastAct'); b.hidden = !action;
+    b.onclick = action ? () => { const i = undoStack.lastIndexOf(action); if (i >= 0) undoStack.splice(i, 1); action(); hideToast(); } : null;
     $('toast').classList.add('show');
     clearTimeout(toastTimer); toastTimer = setTimeout(hideToast, action ? 5000 : 2500);
   }
@@ -774,10 +792,12 @@
   }
 
   /* ---------- actions ---------- */
-  function rotate(pid){
-    const p = pages.find(x=>x.pid===pid); p.rot = (p.rot + 90);
+  function rotate(pid, delta = 90, record = true){
+    const p = pages.find(x=>x.pid===pid); if (!p) return;
+    p.rot = p.rot + delta;
+    if (record) pushUndo(() => rotate(pid, -delta, false));
     document.querySelectorAll(`.thumb[data-tp="${pid}"]`).forEach(th => {
-      th.className = 'thumb rot' + (p.rot % 360);
+      th.className = 'thumb rot' + (((p.rot % 360) + 360) % 360);
       const img = th.querySelector('img'); if (img) img.style.transform = `rotate(${p.rot}deg)`;
     });
     if (vPid === pid) showViewer();
@@ -857,11 +877,15 @@
   $('vStage').addEventListener('touchstart', e => { tx = e.touches.length === 1 ? e.touches[0].clientX : null; }, {passive:true});
   $('vStage').addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) stepViewer(dx < 0 ? 1 : -1); tx = null; });
 
+  let dragSnap = null;
   new Sortable($('grid'), {
     animation: 220, easing: 'cubic-bezier(.2,.8,.2,1)',
     delay: 200, delayOnTouchOnly: true, touchStartThreshold: 6,
     ghostClass: 'ghost', chosenClass: 'chosen', filter: '.act,.g-btn,.cut,.scroll-btn,.track,.jump', preventOnFilter: false,
-    onEnd(){
+    onStart(){ dragSnap = snapshot(); },
+    onEnd(ev){
+      if (ev.oldIndex !== ev.newIndex && dragSnap){ const snap = dragSnap; pushUndo(() => restore(snap)); }
+      dragSnap = null;
       const order = [...$('grid').children].map(el => +el.dataset.gid);
       const idx = new Map(pages.map((p,i) => [p.pid, i]));
       pages.sort((a,b) => (order.indexOf(a.gid) - order.indexOf(b.gid)) || (idx.get(a.pid) - idx.get(b.pid)));
