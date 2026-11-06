@@ -3,7 +3,14 @@
 **PDF와 사진을 원하는 순서대로 한 파일로 합치는 도구예요.**
 모든 작업이 내 기기 안에서만 이루어지고, 파일은 어디에도 업로드되지 않아요.
 
-> **바로 쓰기**: 이 저장소의 [`index.html`](index.html) 파일 하나를 [내려받아](#내려받기) 브라우저로 열면 돼요. 설치도, 회원가입도, 인터넷 연결도 필요 없어요.
+<p>
+  <a href="https://iimmuunnee.github.io/hapbon/"><b>👉 바로 써보기</b></a>
+  &nbsp;·&nbsp; <a href="#내려받기">내려받기</a>
+  &nbsp;·&nbsp; <a href="README.en.md">English</a>
+</p>
+
+> 링크를 열면 바로 쓸 수 있어요. 웹 주소로 열어도 파일은 서버로 가지 않고 각자 기기에서만 처리돼요.
+> 인터넷 없이 쓰고 싶으면 [`index.html`](index.html) 파일 하나를 [내려받아](#내려받기) 브라우저로 열면 돼요. 설치도, 회원가입도 필요 없어요.
 
 ![합본 메인 화면](docs/images/main.png)
 
@@ -189,6 +196,10 @@ npm run build   # src/app.html.tpl → index.html
 - [pdf-lib](https://github.com/Hopding/pdf-lib) (MIT) - PDF 합치기, 저장
 - [PDF.js](https://github.com/mozilla/pdf.js) (Apache-2.0) - 썸네일, 암호 해제, 제목 인식
 - [SortableJS](https://github.com/SortableJS/Sortable) (MIT) - 끌어서 순서 바꾸기
+
+## 기여하기
+
+버그 제보, 기능 제안, 코드 기여 모두 환영해요. [기여 안내](CONTRIBUTING.md)를 참고해 주세요.
 
 ## 라이선스
 
