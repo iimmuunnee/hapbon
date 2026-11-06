@@ -27,7 +27,8 @@ So I built a tool that solves all of this **without a server**.
 
 1. **Turn off your internet.** Open `index.html` offline. Everything still works.
 2. **Open DevTools → Network** (`F12`, or `⌥⌘I` on Mac). Add files, merge and save. Apart from loading the page itself, no request leaves your device.
-3. **Read the code.** All UI and logic live in [`src/app.html.tpl`](src/app.html.tpl).
+3. **Check the security policy.** The page ships a strict `Content-Security-Policy` with `connect-src 'none'` and `default-src 'none'`, so the browser itself blocks any network request or external resource, even if malicious code were ever added.
+4. **Read the code.** All UI and logic live in [`src/app.html.tpl`](src/app.html.tpl).
 
 ## Demo
 
