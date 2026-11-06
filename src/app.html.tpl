@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F2F4F6">
 <title>PDF 합치기</title>
 <style>
   :root{
@@ -35,7 +36,7 @@
   .empty:hover{border-color:var(--line)}
   .empty .ico{width:64px;height:64px;border-radius:20px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;margin:0 auto 20px}
   .empty b{display:block;font-size:19px;margin-bottom:8px}
-  .empty p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+  .empty p{margin:0;color:var(--muted);font-size:14px;line-height:1.6;word-break:keep-all}
 
   /* file chips */
   .files{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
@@ -112,7 +113,40 @@
   /* window drop overlay */
   .drop-ov{position:fixed;inset:12px;border-radius:24px;border:2px dashed var(--primary);background:rgba(232,243,255,.85);display:grid;place-items:center;font-size:18px;font-weight:700;color:var(--primary);opacity:0;pointer-events:none;transition:opacity .15s var(--ease)}
   .drop-ov.show{opacity:1}
-  @media (max-width:640px){ header{flex-direction:column;align-items:stretch} .bar .in{flex-wrap:wrap} .sum{width:100%} }
+  /* viewer */
+  .viewer{position:fixed;inset:0;background:rgba(15,19,25,.92);display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .2s var(--ease);z-index:20}
+  .viewer.show{opacity:1;pointer-events:auto}
+  .v-top{display:flex;align-items:center;gap:12px;padding:16px 20px;color:#fff;padding-top:max(16px,env(safe-area-inset-top))}
+  .v-title{flex:1;min-width:0;font-size:15px;display:flex;align-items:center;gap:10px}
+  .v-title .badge{background:#fff;color:var(--ink)}
+  .v-title .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#D1D6DB}
+  .v-btn{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;flex:none}
+  .v-btn:hover:not(:disabled){background:rgba(255,255,255,.12)}
+  .v-btn:disabled{opacity:.3}
+  .v-body{flex:1;min-height:0;display:flex;align-items:center;gap:8px;padding:0 12px 24px;padding-bottom:max(24px,env(safe-area-inset-bottom))}
+  .v-stage{flex:1;height:100%;position:relative;overflow:hidden;min-width:0;touch-action:pan-y}
+  .v-stage img{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border-radius:4px;box-shadow:0 8px 40px rgba(0,0,0,.4);transition:transform .25s var(--ease),opacity .15s var(--ease)}
+  .v-stage .skeleton{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(60vh,80vw);aspect-ratio:1/1.414;border-radius:4px;opacity:.15}
+  .thumb{cursor:zoom-in}
+
+  @media (max-width:640px){
+    .wrap{padding:28px 16px 150px}
+    header{flex-direction:row;align-items:center}
+    h1{font-size:22px}
+    .lead{font-size:13px}
+    .btn-secondary{height:40px;padding:0 14px;font-size:14px}
+    .grid{grid-template-columns:repeat(2,1fr);gap:12px}
+    .bar .in{flex-wrap:wrap;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+    .sum{order:0;flex:1}
+    .warn{order:1;width:100%}
+    .name{order:2;flex:1 1 100%}
+    .btn-primary{order:3;flex:1 1 100%;height:52px;border-radius:14px}
+    .toast{bottom:170px}
+    .empty{padding:56px 20px}
+    .v-body .v-btn{display:none}
+  }
+  /* 터치 기기: 버튼 항상 보이기 */
+  @media (hover:none){ .acts{opacity:1} .page:hover{box-shadow:none} .empty:hover{border-color:transparent} }
   @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
 </style>
 </head>
@@ -134,13 +168,13 @@
 
   <div class="empty" id="empty" role="button" tabindex="0">
     <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15h6"/></svg></div>
-    <b>PDF나 사진을 끌어다 놓으세요</b>
-    <p>눌러서 고를 수도 있어요 · PDF, JPG, PNG<br>넣은 파일의 모든 페이지를 원하는 순서로 섞을 수 있어요</p>
+    <b id="emptyTitle">PDF나 사진을 끌어다 놓으세요</b>
+    <p>눌러서 고를 수도 있어요 · PDF, 사진(JPG, PNG, HEIC)<br>넣은 파일의 모든 페이지를 원하는 순서로 섞을 수 있어요</p>
   </div>
 
   <section id="work" hidden>
     <div class="files" id="files"></div>
-    <p class="hint">페이지를 끌어서 순서를 바꾸세요. 다른 파일의 페이지와도 섞을 수 있어요.</p>
+    <p class="hint" id="hint">페이지를 끌어서 순서를 바꾸세요. 누르면 크게 볼 수 있어요.</p>
     <div class="grid" id="grid"></div>
   </section>
 </div>
@@ -169,8 +203,21 @@
   </form>
 </div>
 
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="페이지 크게 보기">
+  <div class="v-top">
+    <div class="v-title"><span class="badge" id="vNum"></span><span class="nm" id="vName"></span></div>
+    <button class="v-btn" id="vRot" title="오른쪽으로 돌리기" aria-label="오른쪽으로 돌리기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg></button>
+    <button class="v-btn" id="vClose" title="닫기 (Esc)" aria-label="닫기"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="v-body">
+    <button class="v-btn" id="vPrev" title="이전 페이지 (←)" aria-label="이전 페이지"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div class="v-stage" id="vStage"></div>
+    <button class="v-btn" id="vNext" title="다음 페이지 (→)" aria-label="다음 페이지"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+  </div>
+</div>
+
 <div class="drop-ov" id="dropOv">여기에 놓으면 추가돼요</div>
-<input type="file" id="picker" accept="application/pdf,image/jpeg,image/png" multiple hidden>
+<input type="file" id="picker" accept="application/pdf,image/*" multiple hidden>
 
 <script>__PDFLIB__</script>
 <script>__PDFJS__</script>
@@ -178,7 +225,7 @@
 <script id="worker-src" type="text/plain">__WORKER__</script>
 <script>
 (function(){
-  if (location.protocol.startsWith('http')) setInterval(() => fetch('/ping').catch(()=>{}), 2000);
+  if (location.hostname === '127.0.0.1') setInterval(() => fetch('/ping').catch(()=>{}), 2000);
   pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([document.getElementById('worker-src').textContent], {type:'text/javascript'}));
 
   const $ = id => document.getElementById(id);
@@ -212,16 +259,36 @@
     return added;
   }
 
+  async function toJpeg(file){
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url; });
+      const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0,0,c.width,c.height); ctx.drawImage(img,0,0);
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', .92));
+      return new Uint8Array(await blob.arrayBuffer());
+    } finally { URL.revokeObjectURL(url); }
+  }
+
   async function addFiles(list){
     let firstAdd = true;
     for (const file of list){
       const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
-      const isImg = /^image\/(jpeg|png)$/.test(file.type) || /\.(jpe?g|png)$/i.test(file.name);
-      if (!isPdf && !isImg){ toast('PDF, JPG, PNG만 넣을 수 있어요'); continue; }
-      const f = {id:++fseq, name:file.name, kind:isPdf?'pdf':'image', bytes:new Uint8Array(await file.arrayBuffer()), color:COLORS[colorIdx++ % COLORS.length], state:'ready'};
+      const isImg = /^image\//.test(file.type) || /\.(jpe?g|png|heic|heif|webp|gif|bmp)$/i.test(file.name);
+      if (!isPdf && !isImg){ toast('PDF나 사진만 넣을 수 있어요'); continue; }
+      let bytes = new Uint8Array(await file.arrayBuffer()), mime = null;
+      if (isImg){
+        if (/^image\/png$/.test(file.type) || /\.png$/i.test(file.name)) mime = 'png';
+        else if (/^image\/jpe?g$/.test(file.type) || /\.jpe?g$/i.test(file.name)) mime = 'jpg';
+        else {
+          try { bytes = await toJpeg(file); mime = 'jpg'; }
+          catch(e){ toast(file.name + '은(는) 이 브라우저에서 열 수 없는 사진이에요'); continue; }
+        }
+      }
+      const f = {id:++fseq, name:file.name, kind:isPdf?'pdf':'image', bytes, color:COLORS[colorIdx++ % COLORS.length], state:'ready'};
       files.set(f.id, f);
       if (isImg){
-        f.mime = /png/i.test(file.type || file.name) ? 'png' : 'jpg';
+        f.mime = mime;
         f.numPages = 1;
         const p = {pid:++pseq, fid:f.id, index:0, rot:0, thumb:URL.createObjectURL(new Blob([f.bytes],{type:'image/'+(f.mime==='png'?'png':'jpeg')})), fresh:true};
         pages.push(p);
@@ -326,6 +393,7 @@
       el.querySelector('.cap .nm').textContent = f.name.replace(/\.[^.]+$/, '');
       el.querySelector('[data-a=rot]').onclick = () => rotate(p.pid);
       el.querySelector('[data-a=del]').onclick = () => removePage(p.pid);
+      el.querySelector('.thumb').onclick = () => openViewer(p.pid);
       grid.appendChild(el);
       if (!p.thumb) queueThumb(p);
     });
@@ -348,10 +416,11 @@
     const th = document.querySelector(`.page[data-pid="${pid}"] .thumb`);
     th.className = 'thumb rot' + (p.rot % 360);
     const img = th.querySelector('img'); if (img) img.style.transform = `rotate(${p.rot}deg)`;
+    if (vPid === pid) showViewer();
   }
   function removePage(pid){
     const i = pages.findIndex(x=>x.pid===pid); const [p] = pages.splice(i,1);
-    render();
+    render(); removedCleanup();
     toast(`${i+1}쪽을 뺐어요`, () => { pages.splice(Math.min(i,pages.length),0,p); render(); });
   }
   function removeFile(fid){
@@ -362,8 +431,69 @@
     toast(`${f.name}을(를) 뺐어요`, () => { files.set(fid,f); pages = snapshot; render(); });
   }
 
+  /* ---------- viewer ---------- */
+  let vPid = null; const bigCache = new Map();
+  async function bigImage(p){
+    const f = files.get(p.fid);
+    if (f.kind === 'image') return p.thumb;
+    if (bigCache.has(p.pid)) return bigCache.get(p.pid);
+    const pg = await f.doc.getPage(p.index+1);
+    const v1 = pg.getViewport({scale:1});
+    const target = Math.min(2200, Math.max(window.innerWidth, window.innerHeight) * Math.min(window.devicePixelRatio || 1, 2));
+    const vp = pg.getViewport({scale: target / Math.max(v1.width, v1.height)});
+    const c = document.createElement('canvas'); c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+    const ctx = c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    await pg.render({canvasContext:ctx, viewport:vp}).promise;
+    const url = c.toDataURL('image/jpeg', .9); bigCache.set(p.pid, url); return url;
+  }
+  function openViewer(pid){ vPid = pid; $('viewer').classList.add('show'); document.body.style.overflow = 'hidden'; showViewer(); }
+  function closeViewer(){ vPid = null; $('viewer').classList.remove('show'); document.body.style.overflow = ''; }
+  async function showViewer(){
+    const i = pages.findIndex(x => x.pid === vPid); if (i < 0) return closeViewer();
+    const p = pages[i], f = files.get(p.fid);
+    $('vNum').textContent = `${i+1} / ${pages.length}`;
+    $('vName').textContent = f.name + (f.numPages > 1 ? ` · ${p.index+1}쪽` : '');
+    $('vPrev').disabled = i === 0; $('vNext').disabled = i === pages.length - 1;
+    const stage = $('vStage');
+    const fit = () => { const im = stage.querySelector('img'); if (!im) return;
+      const r = ((p.rot % 360) + 360) % 360, side = r === 90 || r === 270;
+      const W = stage.clientWidth, H = stage.clientHeight, w = im.naturalWidth, h = im.naturalHeight;
+      const s = side ? Math.min(W / h, H / w) : Math.min(W / w, H / h);
+      im.style.maxWidth = 'none'; im.style.maxHeight = 'none';
+      im.style.width = (w * s) + 'px'; im.style.height = (h * s) + 'px';
+      im.style.transform = `translate(-50%,-50%) rotate(${p.rot}deg)`; };
+    const cur = stage.querySelector('img');
+    if (cur && cur.dataset.pid == p.pid){ fit(); return; }
+    if (p.thumb){ stage.innerHTML = `<img alt="" data-pid="${p.pid}" src="${p.thumb}">`; stage.querySelector('img').onload = fit; }
+    else stage.innerHTML = '<div class="skeleton"></div>';
+    try {
+      const url = await bigImage(p);
+      if (vPid !== p.pid) return;
+      const im = new Image(); im.alt = ''; im.dataset.pid = p.pid; im.onload = () => { stage.innerHTML = ''; stage.appendChild(im); fit(); }; im.src = url;
+    } catch(e){ console.error(e); }
+    window.__fitViewer = fit;
+  }
+  function stepViewer(d){ const i = pages.findIndex(x => x.pid === vPid) + d; if (i >= 0 && i < pages.length){ vPid = pages[i].pid; showViewer(); } }
+  $('vClose').onclick = closeViewer;
+  $('vPrev').onclick = () => stepViewer(-1);
+  $('vNext').onclick = () => stepViewer(1);
+  $('vRot').onclick = () => rotate(vPid);
+  $('viewer').addEventListener('click', e => { if (e.target.id === 'viewer' || e.target.id === 'vStage') closeViewer(); });
+  window.addEventListener('resize', () => { if (vPid !== null && window.__fitViewer) window.__fitViewer(); });
+  document.addEventListener('keydown', e => {
+    if (vPid === null) return;
+    if (e.key === 'Escape') closeViewer();
+    else if (e.key === 'ArrowLeft') stepViewer(-1);
+    else if (e.key === 'ArrowRight') stepViewer(1);
+  });
+  // 휴대폰: 좌우로 밀어서 넘기기
+  let tx = null;
+  $('vStage').addEventListener('touchstart', e => { tx = e.touches.length === 1 ? e.touches[0].clientX : null; }, {passive:true});
+  $('vStage').addEventListener('touchend', e => { if (tx === null) return; const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) stepViewer(dx < 0 ? 1 : -1); tx = null; });
+
   new Sortable($('grid'), {
     animation: 220, easing: 'cubic-bezier(.2,.8,.2,1)',
+    delay: 200, delayOnTouchOnly: true, touchStartThreshold: 6,
     ghostClass: 'ghost', chosenClass: 'chosen', filter: '.act', preventOnFilter: false,
     onEnd(){
       const order = [...$('grid').children].map(el => +el.dataset.pid);
@@ -412,6 +542,7 @@
     return out.save();
   }
 
+  function removedCleanup(){ if (vPid !== null && !pages.some(x => x.pid === vPid)) closeViewer(); }
   $('saveBtn').addEventListener('click', async () => {
     if (busy || !pages.length) return;
     busy = true; const btn = $('saveBtn'); btn.disabled = true;
@@ -444,6 +575,12 @@
 
   // test hooks
   window.__app = { addFiles, get pages(){ return pages; }, files, move(from,to){ const [p]=pages.splice(from,1); pages.splice(to,0,p); render(); } };
+  if (matchMedia('(hover:none)').matches){
+    $('hint').textContent = '페이지를 꾹 눌러서 끌면 순서가 바뀌어요. 누르면 크게 볼 수 있어요.';
+    $('emptyTitle').textContent = '눌러서 PDF나 사진을 골라 주세요';
+    document.querySelector('.empty p').innerHTML = 'PDF, 사진(JPG, PNG, HEIC)<br>넣은 파일의 모든 페이지를 원하는 순서로 섞을 수 있어요';
+  }
+  window.__app.openViewer = openViewer;
   render();
 })();
 </script>
