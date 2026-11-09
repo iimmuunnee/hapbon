@@ -87,6 +87,7 @@
   .g-head .sp{flex:1}
   .g-btn{height:28px;padding:0 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--sub);background:var(--fill);flex:none;opacity:0;transition:opacity .15s var(--ease),background .15s var(--ease)}
   .g-btn:hover{background:var(--line);color:var(--ink)}
+  .g-btn.ic{width:28px;padding:0;display:grid;place-items:center}
   .g-btn.x{width:28px;padding:0;display:grid;place-items:center;color:var(--danger);background:var(--danger-soft)}
   .g-btn.x:hover{background:var(--danger-soft2);color:var(--danger)}
   .group:hover .g-btn,.group:focus-within .g-btn{opacity:1}
@@ -158,6 +159,17 @@
   .cap .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
   .ghost{opacity:.35}
   .chosen{box-shadow:0 0 0 1.5px var(--ring-h,transparent),0 12px 32px var(--shadow2)!important}
+
+  /* 묶음 하나만 따로 저장하는 작은 창 */
+  .dlpop{position:fixed;z-index:30;width:360px;max-width:calc(100vw - 24px);background:var(--card);border-radius:16px;padding:14px;box-shadow:0 0 0 1px var(--line),0 16px 40px var(--shadow2);opacity:0;transform:translateY(-4px) scale(.98);pointer-events:none;transition:opacity .15s var(--ease),transform .15s var(--ease)}
+  .dlpop.show{opacity:1;transform:none;pointer-events:auto}
+  .dlpop .hd{font-size:13px;font-weight:700;color:var(--ink);margin:0 2px 10px;display:flex;align-items:center;gap:6px}
+  .dlpop .hd .ct{font-weight:500;color:var(--muted)}
+  .dlpop .row{display:flex;gap:8px}
+  .dlpop .name{height:40px;border-radius:10px;padding:0 10px;min-width:0;flex:1;order:0}
+  .dlpop .name input,.dlpop .name span{font-size:14px}
+  .dlpop .btn{height:40px;padding:0 16px;border-radius:10px;font-size:14px;flex:none;min-width:0;order:0}
+  .dlpop .spin{width:16px;height:16px}
 
   /* bottom bar */
   .bar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--bar-bg);border-top:1px solid var(--line);transform:translateY(100%);transition:transform .3s var(--ease)}
@@ -341,12 +353,17 @@
   <footer>Created by <b>임휘훈</b></footer>
 </div>
 
+<div class="dlpop" id="dlPop" role="dialog" aria-labelledby="dlHead">
+  <div class="hd"><span id="dlHead"></span><span class="ct" id="dlCt"></span></div>
+  <div class="row"><label class="name"><input id="dlName" spellcheck="false" autocomplete="off" aria-label="" data-i18n-aria="nameAria"><span>.pdf</span></label><button class="btn btn-primary" id="dlGo"></button></div>
+</div>
+
 <div class="bar" id="bar">
   <div class="in">
     <div class="sum" id="sum"></div>
     <label class="name"><input id="outname" value="" placeholder="합본 이름 적기" aria-label="합본 파일 이름" data-i18n-ph="namePh" data-i18n-aria="nameAria" spellcheck="false" autocomplete="off"><span>.pdf</span></label>
     <span class="warn" id="warn" hidden></span>
-    <button class="btn btn-primary" id="saveBtn" data-i18n="save">PDF로 저장</button>
+    <button class="btn btn-primary" id="saveBtn" data-i18n="save">전체 PDF로 저장</button>
   </div>
 </div>
 
@@ -472,7 +489,8 @@
       orClick:'눌러서 고를 수도 있어요', formats:'PDF, 사진(JPG, PNG, HEIC)', mix:'넣은 파일의 모든 페이지를 원하는 순서로 섞을 수 있어요',
       hint:'끌어서 순서를 바꾸세요. 여러 쪽짜리 PDF는 겹쳐서 함께 움직이고, 펼치면 쪽별로 보고 나눌 수 있어요.',
       hintTouch:'꾹 눌러서 끌면 순서가 바뀌어요. 여러 쪽짜리는 펼쳐서 쪽별로 나눌 수 있어요.',
-      namePh:'합본 이름 적기', nameAria:'합본 파일 이름', save:'PDF로 저장', saving:'만드는 중', undo:'되돌리기',
+      namePh:'합본 이름 적기', nameAria:'합본 파일 이름', save:'전체 PDF로 저장', saving:'만드는 중', undo:'되돌리기',
+      dl:'따로 저장', dlTitle:'이 묶음만 PDF로 따로 저장', dlHead:'이 묶음만 저장', dlGo:'저장', dlRange:(a,b) => `${a}-${b}쪽`, dlOne:a => `${a}쪽`, dlN:n => `${n}쪽`,
       pwTitle:'암호를 입력해 주세요', pwDesc:' 파일에 암호가 걸려 있어요. 암호를 입력하면 풀린 상태로 합쳐요.', pwPh:'PDF 암호', later:'나중에', ok:'확인',
       pwWrong:'암호가 맞지 않아요. 다시 확인해 주세요', unlocked:'암호를 풀었어요',
       viewer:'페이지 크게 보기', rotate:'오른쪽으로 돌리기', close:'닫기', prev:'이전 페이지', next:'다음 페이지', dropHere:'여기에 놓으면 추가돼요',
@@ -495,7 +513,8 @@
       orClick:'Or click to choose', formats:'PDF, photos (JPG, PNG, HEIC)', mix:'Arrange every page of every file in any order',
       hint:'Drag to reorder. Multi-page PDFs move together as a stack; expand one to see and split its pages.',
       hintTouch:'Press and hold to drag. Expand multi-page PDFs to split them.',
-      namePh:'Name your file', nameAria:'File name', save:'Save PDF', saving:'Creating', undo:'Undo',
+      namePh:'Name your file', nameAria:'File name', save:'Save all as PDF', saving:'Creating', undo:'Undo',
+      dl:'Save separately', dlTitle:'Save just this stack as its own PDF', dlHead:'Save this stack only', dlGo:'Save', dlRange:(a,b) => `p${a}-${b}`, dlOne:a => `p${a}`, dlN:n => `${n}pages`,
       pwTitle:'Enter password', pwDesc:' is password-protected. Enter the password to add it unlocked.', pwPh:'PDF password', later:'Later', ok:'OK',
       pwWrong:'Wrong password. Please try again.', unlocked:'Unlocked',
       viewer:'Page preview', rotate:'Rotate right', close:'Close', prev:'Previous page', next:'Next page', dropHere:'Drop to add',
@@ -518,7 +537,8 @@
       orClick:'クリックして選ぶこともできます', formats:'PDF、写真（JPG・PNG・HEIC）', mix:'すべてのファイルのすべてのページを好きな順番に並べられます',
       hint:'ドラッグで並べ替えます。複数ページのPDFは重なったまままとめて動き、展開するとページごとに見て分割できます。',
       hintTouch:'長押ししてドラッグで並べ替え。複数ページは展開して分割できます。',
-      namePh:'ファイル名を入力', nameAria:'ファイル名', save:'PDFを保存', saving:'作成中', undo:'元に戻す',
+      namePh:'ファイル名を入力', nameAria:'ファイル名', save:'全体をPDFで保存', saving:'作成中', undo:'元に戻す',
+      dl:'個別に保存', dlTitle:'このまとまりだけ別のPDFで保存', dlHead:'このまとまりだけ保存', dlGo:'保存', dlRange:(a,b) => `${a}-${b}ページ`, dlOne:a => `${a}ページ`, dlN:n => `${n}ページ`,
       pwTitle:'パスワードを入力してください', pwDesc:' はパスワードで保護されています。入力すると解除した状態で結合します。', pwPh:'PDFのパスワード', later:'あとで', ok:'OK',
       pwWrong:'パスワードが違います。もう一度確認してください', unlocked:'解除しました',
       viewer:'ページを拡大表示', rotate:'右に回転', close:'閉じる', prev:'前のページ', next:'次のページ', dropHere:'ドロップして追加',
@@ -541,7 +561,8 @@
       orClick:'也可以点击选择', formats:'PDF、照片（JPG、PNG、HEIC）', mix:'所有文件的每一页都能按任意顺序排列',
       hint:'拖动即可调整顺序。多页 PDF 会叠在一起整体移动，展开后可逐页查看和拆分。',
       hintTouch:'长按拖动即可调整顺序。多页文件可展开后拆分。',
-      namePh:'输入文件名', nameAria:'文件名', save:'保存 PDF', saving:'正在生成', undo:'撤销',
+      namePh:'输入文件名', nameAria:'文件名', save:'全部保存为 PDF', saving:'正在生成', undo:'撤销',
+      dl:'单独保存', dlTitle:'仅将此组另存为 PDF', dlHead:'仅保存此组', dlGo:'保存', dlRange:(a,b) => `第${a}-${b}页`, dlOne:a => `第${a}页`, dlN:n => `${n}页`,
       pwTitle:'请输入密码', pwDesc:' 受密码保护。输入密码后将以解锁状态合并。', pwPh:'PDF 密码', later:'稍后', ok:'确定',
       pwWrong:'密码不正确，请重新输入', unlocked:'已解锁',
       viewer:'页面预览', rotate:'向右旋转', close:'关闭', prev:'上一页', next:'下一页', dropHere:'松开即可添加',
@@ -564,7 +585,8 @@
       orClick:'也可以點擊選擇', formats:'PDF、照片（JPG、PNG、HEIC）', mix:'所有檔案的每一頁都能依任意順序排列',
       hint:'拖曳即可調整順序。多頁 PDF 會疊在一起整體移動，展開後可逐頁檢視與拆分。',
       hintTouch:'長按拖曳即可調整順序。多頁檔案可展開後拆分。',
-      namePh:'輸入檔案名稱', nameAria:'檔案名稱', save:'儲存 PDF', saving:'正在產生', undo:'復原',
+      namePh:'輸入檔案名稱', nameAria:'檔案名稱', save:'全部儲存為 PDF', saving:'正在產生', undo:'復原',
+      dl:'單獨儲存', dlTitle:'僅將此組另存為 PDF', dlHead:'僅儲存此組', dlGo:'儲存', dlRange:(a,b) => `第${a}-${b}頁`, dlOne:a => `第${a}頁`, dlN:n => `${n}頁`,
       pwTitle:'請輸入密碼', pwDesc:' 受密碼保護。輸入密碼後將以解鎖狀態合併。', pwPh:'PDF 密碼', later:'稍後', ok:'確定',
       pwWrong:'密碼不正確，請重新輸入', unlocked:'已解鎖',
       viewer:'頁面預覽', rotate:'向右旋轉', close:'關閉', prev:'上一頁', next:'下一頁', dropHere:'放開即可新增',
@@ -587,7 +609,8 @@
       orClick:'O haz clic para elegir', formats:'PDF, fotos (JPG, PNG, HEIC)', mix:'Ordena todas las páginas de todos los archivos como quieras',
       hint:'Arrastra para reordenar. Los PDF de varias páginas se mueven juntos como una pila; despliégalos para ver y dividir sus páginas.',
       hintTouch:'Mantén pulsado para arrastrar. Despliega los PDF de varias páginas para dividirlos.',
-      namePh:'Nombre del archivo', nameAria:'Nombre del archivo', save:'Guardar PDF', saving:'Creando', undo:'Deshacer',
+      namePh:'Nombre del archivo', nameAria:'Nombre del archivo', save:'Guardar todo en PDF', saving:'Creando', undo:'Deshacer',
+      dl:'Guardar aparte', dlTitle:'Guardar solo este grupo como PDF', dlHead:'Guardar solo este grupo', dlGo:'Guardar', dlRange:(a,b) => `p${a}-${b}`, dlOne:a => `p${a}`, dlN:n => `${n}pag`,
       pwTitle:'Introduce la contraseña', pwDesc:' está protegido con contraseña. Introdúcela para añadirlo desbloqueado.', pwPh:'Contraseña del PDF', later:'Más tarde', ok:'Aceptar',
       pwWrong:'Contraseña incorrecta. Inténtalo de nuevo.', unlocked:'Desbloqueado',
       viewer:'Vista de página', rotate:'Girar a la derecha', close:'Cerrar', prev:'Página anterior', next:'Página siguiente', dropHere:'Suelta para añadir',
@@ -610,7 +633,8 @@
       orClick:'Ou cliquez pour choisir', formats:'PDF, photos (JPG, PNG, HEIC)', mix:'Réorganisez toutes les pages de tous les fichiers comme vous voulez',
       hint:'Faites glisser pour réorganiser. Les PDF de plusieurs pages se déplacent ensemble en pile ; dépliez-les pour voir et diviser leurs pages.',
       hintTouch:'Appuyez longuement pour déplacer. Dépliez les PDF de plusieurs pages pour les diviser.',
-      namePh:'Nom du fichier', nameAria:'Nom du fichier', save:'Enregistrer le PDF', saving:'Création', undo:'Annuler',
+      namePh:'Nom du fichier', nameAria:'Nom du fichier', save:'Tout enregistrer en PDF', saving:'Création', undo:'Annuler',
+      dl:'Enregistrer à part', dlTitle:'Enregistrer uniquement ce groupe en PDF', dlHead:'Enregistrer ce groupe seul', dlGo:'Enregistrer', dlRange:(a,b) => `p${a}-${b}`, dlOne:a => `p${a}`, dlN:n => `${n}p`,
       pwTitle:'Saisissez le mot de passe', pwDesc:' est protégé par un mot de passe. Saisissez-le pour l’ajouter déverrouillé.', pwPh:'Mot de passe du PDF', later:'Plus tard', ok:'OK',
       pwWrong:'Mot de passe incorrect. Réessayez.', unlocked:'Déverrouillé',
       viewer:'Aperçu de la page', rotate:'Pivoter à droite', close:'Fermer', prev:'Page précédente', next:'Page suivante', dropHere:'Déposez pour ajouter',
@@ -633,7 +657,8 @@
       orClick:'Oder klicken zum Auswählen', formats:'PDF, Fotos (JPG, PNG, HEIC)', mix:'Alle Seiten aller Dateien beliebig anordnen',
       hint:'Zum Umsortieren ziehen. Mehrseitige PDFs bewegen sich als Stapel; aufklappen, um Seiten zu sehen und zu teilen.',
       hintTouch:'Gedrückt halten zum Ziehen. Mehrseitige PDFs zum Teilen aufklappen.',
-      namePh:'Dateiname', nameAria:'Dateiname', save:'PDF speichern', saving:'Wird erstellt', undo:'Rückgängig',
+      namePh:'Dateiname', nameAria:'Dateiname', save:'Alles als PDF speichern', saving:'Wird erstellt', undo:'Rückgängig',
+      dl:'Einzeln speichern', dlTitle:'Nur diesen Stapel als eigene PDF speichern', dlHead:'Nur diesen Stapel speichern', dlGo:'Speichern', dlRange:(a,b) => `S${a}-${b}`, dlOne:a => `S${a}`, dlN:n => `${n}S`,
       pwTitle:'Passwort eingeben', pwDesc:' ist passwortgeschützt. Geben Sie das Passwort ein, um die Datei entsperrt hinzuzufügen.', pwPh:'PDF-Passwort', later:'Später', ok:'OK',
       pwWrong:'Falsches Passwort. Bitte erneut versuchen.', unlocked:'Entsperrt',
       viewer:'Seitenvorschau', rotate:'Nach rechts drehen', close:'Schließen', prev:'Vorherige Seite', next:'Nächste Seite', dropHere:'Zum Hinzufügen ablegen',
@@ -691,6 +716,7 @@
   const pwQueue = [];
 
   const ICON_ROT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>';
+  const ICON_DL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';   // 이 묶음만 따로 저장
   const ICON_DEL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';   // 빼기: 휴지통 (파일 이름표만 X)
   const ICON_X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 
@@ -951,6 +977,7 @@
           <div class="acts">
             ${cnt > 1 ? `<button class="act" data-a="expand" title="${t('expand')}" aria-label="${t('expand')}">${ICON_EXPAND}</button>`
                       : `<button class="act" data-a="rot" title="${t('rotate')}" aria-label="${t('rotate')}">${ICON_ROT}</button>`}
+            <button class="act" data-a="dl" title="${t('dlTitle')}" aria-label="${t('dlTitle')}">${ICON_DL}</button>
             <button class="act del" data-a="del" title="${t(cnt > 1 ? 'removeGroup' : 'removePage')}" aria-label="${t(cnt > 1 ? 'removeGroup' : 'removePage')}">${ICON_DEL}</button>
           </div>
           <div class="c-title hd-nm"></div>
@@ -962,6 +989,7 @@
         };
         const ro = box.querySelector('[data-a=rot]'); if (ro) ro.onclick = () => rotate(p.pid);
         box.querySelector('[data-a=del]').onclick = () => cnt > 1 ? removeGroup(g.gid) : removePage(p.pid);
+        box.querySelector('[data-a=dl]').onclick = e => { e.stopPropagation(); openDl(g.gid, e.currentTarget); };
         box.querySelector('.thumb').onclick = () => openViewer(p.pid);
         grid.appendChild(box);
         return;
@@ -974,6 +1002,7 @@
           <button class="g-btn" data-a="fold" title="${t('foldTitle')}">${t('fold')}</button>
           ${g.items.length > 1 ? `<button class="g-btn" data-a="split" title="${t('splitTitle')}">${t('split')}</button>` : ''}
           ${gi > 0 ? `<button class="g-btn" data-a="join" title="${t('joinTitle')}">${t('join')}</button>` : ''}
+          <button class="g-btn ic" data-a="dl" title="${t('dlTitle')}" aria-label="${t('dlTitle')}">${ICON_DL}</button>
           <button class="g-btn x" data-a="rmg" title="${t('removeGroup')}" aria-label="${t('removeGroup')}">${ICON_DEL}</button></div>
         <div class="g-wrap"><div class="fade l"></div><div class="fade r"></div>
           <button class="scroll-btn l" aria-label="${t('scrollL')}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
@@ -986,6 +1015,7 @@
       const sb = box.querySelector('[data-a=split]'); if (sb) sb.onclick = () => ungroup(g.gid);
       const jb = box.querySelector('[data-a=join]'); if (jb) jb.onclick = () => joinPrev(g.gid);
       box.querySelector('[data-a=rmg]').onclick = () => removeGroup(g.gid);
+      box.querySelector('[data-a=dl]').onclick = e => { e.stopPropagation(); openDl(g.gid, e.currentTarget); };
       const body = box.querySelector('.g-body');
       g.items.forEach((p, k) => {
         n++;
@@ -1215,13 +1245,13 @@
 
   /* ---------- save ---------- */
   const A4 = [595.28, 841.89];
-  async function build(progress){
+  async function build(progress, list = pages){
     const {PDFDocument, degrees} = PDFLib;
     const out = await PDFDocument.create();
     const srcCache = new Map(), imgCache = new Map();
     let n = 0;
-    for (const p of pages){
-      progress(++n, pages.length);
+    for (const p of list){
+      progress(++n, list.length);
       const f = files.get(p.fid);
       const rot = ((p.rot % 360) + 360) % 360;
       if (f.kind === 'image'){
@@ -1253,6 +1283,58 @@
     return out.save();
   }
 
+  const safeName = v => v.trim().replace(/\.pdf$/i,'').replace(/[\\/:*?"<>|]/g,'_');
+  function download(bytes, name){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([bytes], {type:'application/pdf'})); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+  }
+  // 묶음 하나만 따로 저장: 기본 이름은 "파일이름_쪽범위"
+  let dlGid = null;
+  function dlDefault(items){
+    const fids = [...new Set(items.map(p => p.fid))], f0 = files.get(fids[0]);
+    const base = f0.name.replace(/\.[^.]+$/, '');
+    if (fids.length > 1) return t('andMore', base, fids.length - 1);
+    const idx = items.map(p => p.index);
+    if (f0.kind === 'image' || (idx.length === f0.numPages && idx.every((v,i) => v === i))) return base;
+    const run = idx.every((v,i) => i === 0 || v === idx[i-1] + 1);
+    if (!run) return `${base}_${t('dlN', idx.length)}`;
+    return `${base}_${idx.length === 1 ? t('dlOne', idx[0]+1) : t('dlRange', idx[0]+1, idx[idx.length-1]+1)}`;
+  }
+  function openDl(gid, anchor){
+    const items = pages.filter(p => p.gid === gid); if (!items.length) return;
+    dlGid = gid;
+    $('dlHead').textContent = t('dlHead'); $('dlCt').textContent = '· ' + t('pages', items.length);
+    $('dlGo').textContent = t('dlGo'); $('dlGo').disabled = false;
+    $('dlName').value = dlDefault(items);
+    const pop = $('dlPop'), r = anchor.getBoundingClientRect(), w = Math.min(360, innerWidth - 24);
+    pop.style.left = Math.max(12, Math.min(innerWidth - w - 12, r.right - w)) + 'px';
+    const below = r.bottom + 8, h = 110;
+    pop.style.top = (below + h > innerHeight - 8 ? Math.max(8, r.top - h - 8) : below) + 'px';
+    pop.classList.add('show');
+    setTimeout(() => { const i = $('dlName'); i.focus(); i.select(); }, 30);
+  }
+  function closeDl(){ $('dlPop').classList.remove('show'); dlGid = null; }
+  async function saveDl(){
+    if (busy || dlGid === null) return;
+    const items = pages.filter(p => p.gid === dlGid); if (!items.length){ closeDl(); return; }
+    busy = true; const go = $('dlGo'); go.disabled = true; go.innerHTML = '<span class="spin"></span>';
+    $('saveBtn').disabled = true;
+    try {
+      const bytes = await build(() => {}, items);
+      const name = (safeName($('dlName').value) || dlDefault(items)) + '.pdf';
+      download(bytes, name); window.__lastBytes = bytes;
+      toast(tr('saved', name)); closeDl();
+    } catch(e){ console.error(e); toast(tr('saveFail')); }
+    busy = false; go.textContent = t('dlGo'); go.disabled = false; updateBar();
+  }
+  $('dlGo').addEventListener('click', saveDl);
+  $('dlName').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); saveDl(); } else if (e.key === 'Escape'){ e.preventDefault(); closeDl(); } });
+  document.addEventListener('pointerdown', e => { if (dlGid !== null && !$('dlPop').contains(e.target) && !e.target.closest('[data-a=dl]')) closeDl(); });
+  window.addEventListener('resize', closeDl);
+  document.addEventListener('scroll', () => { if (dlGid !== null && !busy) closeDl(); }, {passive:true, capture:true});
+
   function removedCleanup(){ if (vPid !== null && !pages.some(x => x.pid === vPid)) closeViewer(); }
   $('saveBtn').addEventListener('click', async () => {
     if (busy || !pages.length) return;
@@ -1262,11 +1344,8 @@
       const bytes = await build((i,t) => { const el = $('prog'); if (el) el.textContent = `${i} / ${t}`; });
       const d = new Date(), pad = x => String(x).padStart(2,'0');
       const today = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-      let name = ($('outname').value.trim().replace(/\.pdf$/i,'').replace(/[\\/:*?"<>|]/g,'_') || `${tr('defaultName')}_${today}`) + '.pdf';
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([bytes], {type:'application/pdf'})); a.download = name;
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(() => URL.revokeObjectURL(a.href), 60000);
+      const name = (safeName($('outname').value) || `${tr('defaultName')}_${today}`) + '.pdf';
+      download(bytes, name);
       window.__lastBytes = bytes;
       toast(tr('saved', name));
     } catch(e){ console.error(e); toast(tr('saveFail')); }

@@ -43,6 +43,7 @@ The documents in the demo are samples with no real personal data.
 - **Stacked cards**: a multi-page PDF is shown as one stacked card and moves as a group, so a long document never gets scattered.
 - **Automatic titles**: the largest heading on the first page becomes the card title.
 - **Expand and split**: expand a card into a one-row strip with a scrollbar, jump to a page by number, and split with the scissors button.
+- **Save stacks separately**: use the download button on any card to save just that stack as its own PDF. The name is prefilled from the file name and page range (for example `report_p1-4`), and you can edit it. **Save all as PDF** still merges everything into one file.
 - **Rotate, remove, preview** any page.
 - **Undo** everything with `Ctrl+Z` / `⌘Z` (up to 50 steps).
 - **8 languages**, picked from your browser language, switchable from the header.
