@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- 보안 정책: 이 페이지는 어떤 서버와도 통신할 수 없고, 외부 파일을 하나도 불러오지 않아요 -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' blob:; worker-src blob:; style-src 'unsafe-inline'; img-src data: blob:; font-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; child-src blob:; form-action 'none'; base-uri 'none'; manifest-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' blob: 'wasm-unsafe-eval'; worker-src blob:; style-src 'unsafe-inline'; img-src data: blob:; font-src data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; child-src blob:; form-action 'none'; base-uri 'none'; manifest-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F2F4F6">
 <meta name="color-scheme" content="light dark">
@@ -399,26 +399,30 @@
 <input type="file" id="picker" accept="application/pdf,image/*" multiple hidden>
 
 <script>__PDFLIB__</script>
-<script>__PDFJS__</script>
+<!-- pdf.js는 ES 모듈이라 type="module"로 넣는다. 모듈은 문서를 다 읽은 뒤 실행되므로,
+     아래 앱 스크립트는 DOMContentLoaded(모듈 실행 뒤에 옴)에서 시작해 pdfjsLib가 준비된 뒤 돌게 한다 -->
+<script type="module">__PDFJS__</script>
 <script>__SORTABLE__</script>
 <script id="worker-src" type="text/plain">__WORKER__</script>
 <script id="cmaps" type="application/json">__CMAPS__</script>
+<script id="wasm" type="application/json">__WASM__</script>
 <script>
-(function(){
-  // 한국어 PDF용 문자 변환표(CMap)를 파일 안에서 바로 읽기
+document.addEventListener('DOMContentLoaded', function(){
+  // 한국어 PDF용 문자 변환표(CMap)와 스캔 이미지 해독기(wasm)를 파일 안에서 바로 읽기
   const CMAPS = JSON.parse(document.getElementById('cmaps').textContent);
-  class LocalCMapFactory {
+  const WASM = JSON.parse(document.getElementById('wasm').textContent);
+  const fromB64 = b64 => { const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; };
+  class LocalBinaryDataFactory {
     constructor(){}
-    async fetch({name}){
-      const b64 = CMAPS[name];
-      if (!b64) throw new Error('CMap not bundled: ' + name);
-      const bin = atob(b64), u = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
-      return {cMapData: u, compressionType: 1};
+    async fetch({kind, filename}){
+      const b64 = kind === 'cMapUrl' ? CMAPS[filename.replace(/\.bcmap$/, '')] : kind === 'wasmUrl' ? WASM[filename] : null;
+      if (!b64) throw new Error('not bundled: ' + kind + ' ' + filename);
+      return fromB64(b64);
     }
   }
-  const DOC_OPTS = {CMapReaderFactory: LocalCMapFactory, cMapUrl: 'local/', cMapPacked: true, useWorkerFetch: false, isEvalSupported: false};
-  pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([document.getElementById('worker-src').textContent], {type:'text/javascript'}));
+  const DOC_OPTS = {BinaryDataFactory: LocalBinaryDataFactory, cMapUrl: 'local/', cMapPacked: true, wasmUrl: 'local/', useWorkerFetch: false};
+  // 일반(classic) 워커를 직접 만들어 넘긴다. file://에서도 막히지 않는다 (scripts/build.py 참고)
+  pdfjsLib.GlobalWorkerOptions.workerPort = new Worker(URL.createObjectURL(new Blob([document.getElementById('worker-src').textContent], {type:'text/javascript'})));
 
   /* ---------- 번역표 ---------- */
   const LANGS = [['ko','한국어','Korean'],['en','English','English'],['ja','日本語','Japanese'],['zh-CN','简体中文','Chinese (Simplified)'],['zh-TW','繁體中文','Chinese (Traditional)'],['es','Español','Spanish'],['fr','Français','French'],['de','Deutsch','German']];
@@ -1361,7 +1365,7 @@
   window.__app = { addFiles, get pages(){ return pages; }, files, move(from,to){ const [p]=pages.splice(from,1); pages.splice(to,0,p); render(); } };
   window.__app.openViewer = openViewer;
   render();
-})();
+});
 </script>
 </body>
 </html>
