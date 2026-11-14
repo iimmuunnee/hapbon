@@ -73,7 +73,7 @@
 
 1. **인터넷을 끄고 써보세요.** 와이파이를 끄고 `index.html`을 열어도 모든 기능이 그대로 동작해요. 인터넷이 없어도 되는 건 어디에도 파일을 보내지 않는다는 뜻이에요.
 2. **개발자 도구로 확인해 보세요.** 브라우저에서 `F12` (Mac은 `⌥⌘I`) → **네트워크(Network)** 탭을 열어둔 채로 파일을 넣고 저장해 보세요. 페이지를 여는 요청 말고는, 파일을 넣고 합치고 저장하는 동안 밖으로 나가는 요청이 하나도 없어요.
-3. **보안 정책을 확인해 보세요.** 페이지 소스 맨 위의 `Content-Security-Policy` 줄에 `connect-src 'none'`(어떤 서버와도 통신 금지)과 `default-src 'none'`(외부 파일 불러오기 금지)이 적혀 있어요.
+3. **보안 정책을 확인해 보세요.** 페이지 소스 맨 위의 `Content-Security-Policy` 줄에 `connect-src 'none'`(어떤 서버와도 통신 금지)과 `default-src 'none'`(외부 파일 불러오기 금지)이 적혀 있어요. 같은 줄의 `'wasm-unsafe-eval'`은 스캔 문서에 흔한 이미지(JBIG2, JPEG 2000)를 푸는 해독기(WebAssembly)를 실행하기 위한 허용이에요. 해독기는 `index.html` 안에 들어 있고, 이 허용으로 통신이 열리지는 않아요.
 4. **코드를 직접 보세요.** 화면과 동작 코드는 [`src/app.html.tpl`](src/app.html.tpl) 한 파일에 모두 들어 있어요.
 
 > 웹 주소로 쓸 때도 GitHub는 페이지 파일만 전달하고, 누가 페이지를 열었는지 같은 접속 기록 말고는 아무것도 받지 않아요. 더 조심하고 싶다면 `index.html`을 내려받아 쓰거나, 브라우저 확장 프로그램이 꺼진 시크릿 창에서 쓰면 돼요.
@@ -199,7 +199,7 @@ npm run build   # src/app.html.tpl → index.html
 
 | 경로 | 설명 |
 |---|---|
-| `index.html` | 바로 쓰는 완성본 (라이브러리 포함, 약 2MB) |
+| `index.html` | 바로 쓰는 완성본 (라이브러리 포함, 약 3MB) |
 | `src/app.html.tpl` | 화면과 동작 코드 |
 | `scripts/build.py` | 라이브러리와 한국어 CMap을 넣어 `index.html`을 만드는 스크립트 |
 | `docs/images/` | README에 쓴 화면 캡처와 데모 |
